@@ -1,2 +1,7 @@
 node_modules
 out/
+films/*/out/
+films/*/fonts/*.woff2
+films/*/fonts/*.ttf
+films/*/stills/
+__pycache__/

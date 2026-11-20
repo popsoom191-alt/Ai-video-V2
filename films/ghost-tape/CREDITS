@@ -1,0 +1,10 @@
+เวรดึก อาคาร ๓ (Night Round, Building 3): found-footage camcorder tape, 60 s
+
+Engine: adapted from the "Liminal Found Footage" (backrooms) demo of lemo-opuscar by Lemomo (LemoLab),
+https://github.com/lemomo-ai/lemo-opuscar, MIT licence (code). The story, rules, school, figure, captions and
+sound design here are new.
+
+All visuals, textures, the silhouette, the VHS look, the OSD font and all sound effects are made by code.
+
+Fonts (SIL Open Font License 1.1, via google/fonts): IBM Plex Sans Thai, IBM Plex Sans, IBM Plex Sans Condensed, IBM Plex Mono
+Voices: Meta MMS-TTS Thai (facebook/mms-tts-tha, CC BY-NC 4.0), processed in mix.py
