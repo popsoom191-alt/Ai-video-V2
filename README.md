@@ -21,3 +21,12 @@ node render.mjs --encode --out=out/video.mp4
 ถ้าเครื่องไม่มี GPU ให้เติม `--soft-gl` ด้วย ส่วน `fast: true` ใน [src/config.js](src/config.js) จะเปลี่ยนสีน้ำแบบซึม (watercolour fill) ให้เป็นสีเรียบ ทำให้เรนเดอร์บน CPU เร็วขึ้นราว 3 เท่า ถ้ามี GPU ให้ตั้งเป็น `false` จะได้ลายสีน้ำเต็มรูปแบบ
 
 เปิด `studio.html` ใน Chrome เพื่อเลื่อนดูทีละเฟรมได้
+
+## เสียง
+
+เสียงทั้งหมดทำด้วยโค้ด ไม่ได้โหลดไฟล์เสียงจากที่อื่น เอฟเฟกต์มาจากคลังเสียงของ [earshot](https://github.com/Leonxlnx/earshot) (น้ำกระเซ็น ลมพัด หิ่งห้อย ไฟติด ฯลฯ) จังหวะตรงกับฉากในโค้ด มีเพลงคาลิมบา เสียงจิ้งหรีด และเสียงน้ำ
+
+```bash
+python scripts/make_audio.py                                   # → assets/krathong_audio.wav
+node render.mjs --encode --audio=assets/krathong_audio.wav --out=out/video.mp4
+```
