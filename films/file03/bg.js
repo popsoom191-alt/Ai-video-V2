@@ -466,7 +466,7 @@ export function stairsUp(g, t, floor = 2, o = {}) {
   rect(g, dx, dy, dw * (1 - open * .85), dh, sh('#7a7e7a')); rect(g, dx + dw * (1 - open * .85) - 30, dy + 120, 16, 30, sh('#c8c0a0'));
   rect(g, dx + 90, dy - 46, 120, 34, sh('#2a7a4a')); g.fillStyle = sh('#e8f8ee'); g.font = `700 24px ${TH}`; g.fillText('ทางหนีไฟ', dx + 98, dy - 22);
   if (o.taped) {
-    g.strokeStyle = '#9a9a9a'; g.lineWidth = 6; g.setLineDash([14, 8]); g.beginPath(); g.moveTo(dx - 20, dy + 100); g.quadraticCurveTo(dx + dw / 2, dy + 140, dx + dw + 20, dy + 100); g.stroke(); g.setLineDash([]);
+    if (o.chain === undefined) { g.strokeStyle = '#9a9a9a'; g.lineWidth = 6; g.setLineDash([14, 8]); g.beginPath(); g.moveTo(dx - 20, dy + 100); g.quadraticCurveTo(dx + dw / 2, dy + 140, dx + dw + 20, dy + 100); g.stroke(); g.setLineDash([]); }   // (round 2 draws its own chain and padlock)
     for (const [y, r] of [[dy + 70, -.06], [dy + 160, .08]]) { g.save(); g.translate(dx + dw / 2, y); g.rotate(r); rect(g, -200, -16, 400, 32, '#e8c43a'); g.fillStyle = '#1a1a1e'; g.font = `700 20px ${TH}`; g.textAlign = 'center'; for (let k = -2; k <= 2; k++) g.fillText('ห้ามเข้า', k * 82, 7); g.textAlign = 'left'; g.restore(); }
   }
 }

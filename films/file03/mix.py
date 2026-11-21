@@ -8,7 +8,7 @@ from core.audio.sfx import SR, bp, lp, hp, add, limit, compress
 from core.audio import sampler as S
 rng = np.random.default_rng(3)
 EP = sys.argv[1] if len(sys.argv) > 1 else '1'
-EVF = 'events.json' if EP == '1' else f'events_ep{EP}.json'; VDIR = 'voices' if EP in ('1', '12', 'r') else f'voices_ep{EP}'; OUTF = 'mix.wav' if EP == '1' else f'mix_ep{EP}.wav'
+EVF = 'events.json' if EP == '1' else f'events_ep{EP}.json'; VDIR = 'voices' if EP in ('1', '12', 'r', 'v2') else f'voices_ep{EP}'; OUTF = 'mix.wav' if EP == '1' else f'mix_ep{EP}.wav'
 E = json.load(open(os.path.join(HERE, EVF))); DUR = E['dur']; EV = E['ev']; N = int(DUR * SR)
 tt = np.arange(N) / SR; mix = np.zeros((N, 2)); sec = lambda d: int(round(d * SR)); nz = lambda n: rng.standard_normal(n)
 def put(x, t, g=1., pan=0.):
@@ -28,9 +28,13 @@ inTape = lambda t: tape[min(N - 1, sec(t))] > 0
 PITCH = {'fon': 3}   # ElevenLabs gives each character its own voice; only Fon is lifted to sound like a child
 for e in EV:
     if e['type'] != 'line': continue
-    vf = os.path.join(HERE, VDIR, e['id'] + '.wav')
+    ALIAS = {'d1slow': ('d1', -3, .8)}   # Pa Daeng repeats her line, lower and slower
+    src, dp, rate = ALIAS.get(e['id'], (e['id'], 0, 1))
+    vf = os.path.join(HERE, VDIR, src + '.wav')
     if not os.path.exists(vf): continue   # not voiced yet: subtitles only
     y, sr = sf.read(vf); y = librosa.resample(y, orig_sr=sr, target_sr=SR)
+    if rate != 1: y = librosa.effects.time_stretch(y, rate=rate)
+    if dp: y = librosa.effects.pitch_shift(y, sr=SR, n_steps=dp)
     y = librosa.effects.pitch_shift(y, sr=SR, n_steps=PITCH.get(e['who'], 0))
     y = compress(y / (np.abs(y).max() + 1e-9), .3, 3.0)
     if inTape(e['t']):   # a 1997 camcorder: thin, a little distorted; Ton is behind the camera, so he is close and dry
@@ -163,7 +167,19 @@ DOORS = [(3.318, 4.84), (10.9, 12.355), (17.529, 19.108), (12.951, 14.37)]
 _dk = [0]
 def rdoor(t, g=.22):
     a, b = DOORS[_dk[0] % len(DOORS)]; _dk[0] += 1; pfx(rs('637492.mp3', a, b), t, g)
+def radio_news(d):   # a radio: a band-limited voice-like murmur with a little static
+    n = sec(d); x = np.zeros(n)
+    for k in range(4):
+        e = np.repeat(np.clip(rng.standard_normal(n // 1800 + 2) * .7 + .3, 0, 1), 1800)[:n]
+        x += bp(nz(n), 300 + k * 140, 1400 + k * 200) * uniform_filter1d(e, 900)
+    x = x / (np.abs(x).max() + 1e-9) * .7 + hp(nz(n), 4000) * .05
+    return x * env(n, .2, .4)
 FX.update({
+  'radio': lambda t: put(radio_news(22), t, .05, -.4),
+  'rattle': lambda t: [pfx(rs('617981.mp3', 1.46, 1.9), t + k * .18, .16) for k in range(3)],
+  'drip': lambda t: put(np.sin(2 * np.pi * np.linspace(1400, 700, sec(.12)) * np.arange(sec(.12)) / SR) * env(sec(.12), .002, .08) * .6, t, .25),
+  'ring': lambda t: [put(np.sin(2 * np.pi * 880 * np.arange(sec(.35)) / SR) * (np.sin(2 * np.pi * 20 * np.arange(sec(.35)) / SR) > 0) * env(sec(.35), .01, .05) * .3, t + k * .5, .3) for k in range(2)],
+  'carstart': lambda t: put(motor(1.6, 40, 90), t, .3),
   'knock': lambda t: pfx(rs('629987.mp3', .08, .7), t, .32),
   'door': lambda t: rdoor(t),
   'door2': lambda t: pfx(rs('637492.mp3', 12.951, 14.37), t, .2),

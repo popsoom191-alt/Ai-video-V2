@@ -18,7 +18,7 @@ function elbow(s, h, L1 = 62, L2 = 60, side = 1) {   // side: +1 elbow goes to t
 }
 // arm poses: where the hands go (3/4 view, facing right). The near hand is R.
 const ARMS = {
-  down: { L: [-30, -200], R: [32, -200] },
+  down: { L: [-22, -204], R: [30, -204] },          // arms hang straight, close to the body
   chest: { L: [10, -250], R: [34, -252] },          // both hands hold something at the chest, elbows out
   torch: { L: [-28, -202], R: [78, -268] },        // the near arm reaches forward with a torch
   point: { L: [-28, -202], R: [80, -312] },
@@ -34,7 +34,7 @@ const ARMS = {
   strap: { L: [-28, -202], R: [16, -296], eR: [40, -252] },                                  // holding the bag strap
 };
 const SK = '#d9a07a';
-const hand = (g, x, y, c) => { el(g, x, y + 3, 6, 8, c); el(g, x + 4, y - 1, 2.6, 4, c, -.5); };   // a small mitten with a thumb
+const hand = (g, x, y, c) => { el(g, x, y + 3, 5, 7, c); el(g, x + 3.5, y, 2.2, 3.4, c, -.5); };   // a small mitten with a thumb
 const carryBox = (g, x, y) => { poly(g, [[x - 40, y - 34], [x + 40, y - 34], [x + 40, y + 26], [x - 40, y + 26]], '#8a6a46'); poly(g, [[x - 40, y - 34], [x + 40, y - 34], [x + 40, y - 24], [x - 40, y - 24]], '#6a4e32'); };
 
 
@@ -158,7 +158,7 @@ function frontBack(g, C, P, back) {
   const FS = { hip: { L: [-36, -200], R: [30, -228], eR: [56, -262] }, hips: { L: [-30, -228], R: [30, -228], eL: [-56, -262], eR: [56, -262] },
     cross: { L: [22, -262], R: [-22, -270], eL: [-40, -258], eR: [40, -262], hide: true }, chin: { L: [14, -258], R: [6, -344], eL: [-38, -252], eR: [36, -280] },
     pocket: { L: [-26, -214], R: [26, -214], eL: [-40, -262], eR: [40, -262], hide: true }, wave: { L: [-36, -200], R: [60, -430], eR: [58, -336] }, strap: { L: [-36, -200], R: [-6, -298], eR: [34, -252] } }[A];
-  const H = FS ? FS : A === 'chest' ? { L: [-12, -262], R: [12, -262] } : A === 'torch' ? (back ? { L: [-36, -200], R: [30, -290] } : { L: [-36, -200], R: [44, -268] }) : A === 'phone' ? { L: [-36, -200], R: [26, -350] } : { L: [-36, -200], R: [36, -200] };
+  const H = FS ? FS : A === 'chest' ? { L: [-12, -262], R: [12, -262] } : A === 'torch' ? (back ? { L: [-36, -200], R: [30, -290] } : { L: [-36, -200], R: [44, -268] }) : A === 'phone' ? { L: [-36, -200], R: [26, -350] } : { L: [-33, -204], R: [33, -204] };
   const hands = { L: P.hands?.L || H.L, R: P.hands?.R || H.R };
   const len = C.coatLen ?? -222;
   const torso = () => { poly(g, [[-31, -324], [31, -324], [29, -280], [27, len], [-27, len], [-29, -280]], C.top); poly(g, [[-31, -324], [-14, -324], [-12, len], [-27, len], [-29, -280]], dk(C.top, .2)); };
