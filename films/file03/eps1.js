@@ -98,7 +98,7 @@ export default (api) => {
         for (const [x, s, f] of [[1140, 41, false], [1480, 42, true], [1520, 43, false], [1860, 44, true]]) person(g, extra(s), x, 900, 520, { t, sit: true, flip: f, hands: { L: [46, -250], R: [60, -244] } });
         const cm = mover(lt, [[0, 1700], [16, 1700], [19.4, 1060], [21.8, 1060], [25, -200]]);
         if (cm.x > -150) person(g, extra(45), cm.x, 980, 540, P('x', t, cm.walk != null ? { walk: cm.walk, flip: cm.flip } : { flip: true, hands: { R: [100, -250] } }));
-        person(g, 'mae', 700, 720, 430, P('mae', t, { look: .4 }));
+        person(g, 'mae', 700, 696, 430, P('mae', t, { look: .4 }));
         counterFront();
         const am = mover(lt, [[0, 2100], [38.8, 2100], [41.4, 1400], [46, 1400], [50, 2200]]);
         if (lt > 38.8) person(g, 'aunty', am.x, 990, 540, P('aunty', t, am.walk != null ? { walk: am.walk, flip: am.flip ?? true } : { flip: true, look: .5 }));
