@@ -26,19 +26,31 @@ const ARMS = {
   mop: { L: [-4, -250], R: [26, -214] },        // a phone at the ear
 };
 const SK = '#d9a07a';
+const carryBox = (g, x, y) => { poly(g, [[x - 40, y - 34], [x + 40, y - 34], [x + 40, y + 26], [x - 40, y + 26]], '#8a6a46'); poly(g, [[x - 40, y - 34], [x + 40, y - 34], [x + 40, y - 24], [x - 40, y - 24]], '#6a4e32'); };
+
 
 // ---------- the 3/4 standing figure (faces screen right) ----------
 function standing(g, C, P) {
+  if (P.sit && !P._seated) {
+    for (const [sx, c] of [[-9, dk(C.pants, .12)], [9, C.pants]]) {
+      const col = C.skirt && !C.longSkirt ? (C.skin || SK) : c;
+      poly(g, [[sx - 9, -142], [sx + 62, -146], [sx + 62, -128], [sx - 9, -124]], C.skirt || c);
+      poly(g, [[sx + 52, -134], [sx + 66, -134], [sx + 64, -18], [sx + 52, -18]], col);
+      poly(g, [[sx + 50, -22], [sx + 66, -22], [sx + 74, 0], [sx + 48, 0]], C.shoes);
+    }
+    g.save(); g.translate(0, 88); standing(g, { ...C, skirt: null }, { ...P, _seated: true, noLegs: true }); g.restore(); return;
+  }
   const skin = C.skin || SK, bob = 0;
   // legs: long and thin, a shadow plane down the back edge
-  if (!C.longSkirt) for (const [sx, c] of [[-9, dk(C.pants, .12)], [9, C.pants]]) {
+  if (!C.longSkirt && !P.noLegs) for (const [sx, c] of [[-9, dk(C.pants, .12)], [9, C.pants]]) {
     poly(g, [[sx - 8, -226], [sx + 8, -226], [sx + 7, -20], [sx - 6, -20]], c);
     poly(g, [[sx - 8, -226], [sx - 3, -226], [sx - 2, -20], [sx - 6, -20]], dk(c, .25));
     poly(g, [[sx - 7, -24], [sx + 8, -24], [sx + 15, -8], [sx + 15, 0], [sx - 8, 0]], C.shoes);
   }
   C.skirt && poly(g, [[-27, -236], [27, -236], [34, C.skirtLen ?? -130], [-32, C.skirtLen ?? -130]], C.skirt);
   C.skirt && poly(g, [[-27, -236], [-12, -236], [-14, C.skirtLen ?? -130], [-32, C.skirtLen ?? -130]], dk(C.skirt, .2));
-  const pose = ARMS[P.arms || C.arms || 'down'], hands = { L: P.hands?.L || pose.L, R: P.hands?.R || pose.R };
+  const pose = ARMS[P.hold === 'box' ? 'chest' : (P.arms || (P.hold ? C.arms : null) || 'down')], hands = { L: P.hands?.L || pose.L, R: P.hands?.R || pose.R };
+  if (P.gesture && !P.hands?.R && (P.arms || 'down') === 'down' && !P.hold) hands.R = [hands.R[0] + 10 + 3 * Math.sin(P.t * 4.7), hands.R[1] - 34 + 6 * Math.sin(P.t * 3.1)];
   // far arm (behind)
   const sL = [-24, -318], eL = elbow(sL, hands.L, 62, 60, -1);
   path(g, [sL, eL, hands.L], 13, dk(C.sleeve || C.top, .3));
@@ -51,7 +63,7 @@ function standing(g, C, P) {
   const sR = [24, -318], eR = elbow(sR, hands.R, 62, 60, 1);
   path(g, [sR, eR, hands.R], 13, C.sleeve || C.top);
   for (const k of ['L', 'R']) el(g, hands[k][0], hands[k][1] + 3, 6, 8, k === 'L' ? dk(skin, .15) : skin);
-  C.props && C.props(g, P, hands, dk, lt);
+  if (P.hold === 'box') carryBox(g, 22, -258); else if (P.hold) C.props && C.props(g, P, hands, dk, lt);
   head(g, C, P, 'q');
 }
 
@@ -75,7 +87,7 @@ function side(g, C, P) {
   C.sideOutfit && C.sideOutfit(g, P, dk, lt);
   path(g, [[2, -316], [swing * .5 + 2, -258], [swing + 2, -200]], 12, C.sleeve || C.top);   // near arm
   el(g, swing + 2, -196, 6, 8, C.skin || SK);
-  C.sideProps && C.sideProps(g, P, [swing + 2, -196], dk, lt);
+  if (P.hold === 'box') carryBox(g, 26, -258); else if (P.hold) C.sideProps && C.sideProps(g, P, [swing + 2, -196], dk, lt);
   head(g, C, P, 'side');
   g.restore();
 }
@@ -83,16 +95,22 @@ function side(g, C, P) {
 // ---------- front and back views (symmetric; the back hides the face under the hair) ----------
 function frontBack(g, C, P, back) {
   const skin = C.skin || SK;
-  if (!C.longSkirt) for (const sx of [-10, 10]) { poly(g, [[sx - 8, -226], [sx + 8, -226], [sx + 7, -20], [sx - 7, -20]], sx < 0 ? dk(C.pants, .14) : C.pants); poly(g, [[sx - 9, -24], [sx + 9, -24], [sx + 10, 0], [sx - 10, 0]], C.shoes); }
+  const wph = P.walk;
+  if (wph != null) g.translate(0, -Math.abs(Math.cos(wph)) * 4);
+  if (!C.longSkirt) for (const sx of [-10, 10]) {
+    const lift = wph == null ? 0 : Math.max(0, Math.sin(wph) * (sx < 0 ? 1 : -1)) * 26;   // the lifted foot rises and shortens (it swings toward/away from us)
+    poly(g, [[sx - 8, -226], [sx + 8, -226], [sx + 7, -20 - lift], [sx - 7, -20 - lift]], sx < 0 ? dk(C.pants, .14) : C.pants);
+    poly(g, [[sx - 9, -24 - lift], [sx + 9, -24 - lift], [sx + 10, -lift], [sx - 10, -lift]], C.shoes);
+  }
   C.skirt && poly(g, [[-27, -236], [27, -236], [34, C.skirtLen ?? -130], [-34, C.skirtLen ?? -130]], C.skirt);
-  const A = P.arms || C.arms || 'down';
+  const A = P.hold === 'box' ? 'chest' : (P.arms || (P.hold ? C.arms : null) || 'down');
   const H = A === 'chest' ? { L: [-12, -262], R: [12, -262] } : A === 'torch' ? (back ? { L: [-36, -200], R: [30, -290] } : { L: [-36, -200], R: [44, -268] }) : A === 'phone' ? { L: [-36, -200], R: [26, -350] } : { L: [-36, -200], R: [36, -200] };
   const hands = { L: P.hands?.L || H.L, R: P.hands?.R || H.R };
   const len = C.coatLen ?? -222;
   const torso = () => { poly(g, [[-31, -324], [31, -324], [29, -280], [27, len], [-27, len], [-29, -280]], C.top); poly(g, [[-31, -324], [-14, -324], [-12, len], [-27, len], [-29, -280]], dk(C.top, .2)); };
   const arm = sd => { const s = [sd * 27, -318], h = hands[sd > 0 ? 'R' : 'L'], L2 = A === 'chest' ? 30 : 60; path(g, [s, elbow(s, h, 62, L2, sd), h], 13, sd < 0 ? dk(C.sleeve || C.top, .15) : (C.sleeve || C.top)); if (!back || A === 'down') el(g, h[0], h[1] + 3, 6, 8, skin); };
   if (back) { torso(); arm(-1); arm(1); }
-  else { torso(); C.outfit && C.outfit(g, P, dk, lt); arm(-1); arm(1); C.props && A === (C.arms || 'down') && C.props(g, P, hands, dk, lt); }
+  else { torso(); C.outfit && C.outfit(g, P, dk, lt); arm(-1); arm(1); if (P.hold === 'box') carryBox(g, 0, -258); else if (P.hold) C.props && C.props(g, P, hands, dk, lt); }
   const hx = 0, hy = -366;
   poly(g, [[-6, -342], [6, -342], [7, -320], [-6, -320]], dk(skin, .12));
   if (back) {
@@ -129,7 +147,8 @@ function frontBack(g, C, P, back) {
 }
 
 // ---------- head: an egg, two-tone, small eyes ----------
-function head(g, C, P, view) {
+function head(g, C, P, view) { g.save(); g.translate(0, P.nod || 0); headInner(g, C, P, view); g.restore(); }
+function headInner(g, C, P, view) {
   const skin = C.skin || SK, hx = view === 'side' ? 2 : 2, hy = -366;
   poly(g, [[-6, -342], [6, -342], [7, -320], [-6, -320]], dk(skin, .12));   // neck
   C.hairBack && C.hairBack(g, view, dk);
@@ -176,7 +195,7 @@ export const CAST = {
   },
   mind: { name: 'มายด์', role: 'เพื่อนนักสืบ · 1997', quote: 'คนแรกที่เห็นกระดาษ', bg: ['#6a5660', '#362a32'],
     top: '#8a3a40', pants: '#38425a', shoes: '#6a4a36', arms: 'torch', hairCol: '#3a2a24',
-    outfit(g, P, dk) { poly(g, [[-4, -322], [8, -322], [8, -224], [-4, -224]], '#d8b24a'); g.fillStyle = 'rgba(0,0,0,.15)'; for (let k = 0; k < 5; k++) g.fillRect(-28, -306 + k * 18, 56, 2); },
+    outfit(g, P, dk) { poly(g, [[-4, -322], [8, -322], [8, -224], [-4, -224]], '#d8b24a'); g.fillStyle = 'rgba(0,0,0,.15)'; for (let k = 0; k < 5; k++) g.fillRect(-28, -306 + k * 18, 56, 2); cap(g, [22, -322], [-30, -214], 4, '#4a3a2a'); poly(g, [[-46, -232], [-14, -232], [-16, -196], [-44, -196]], '#5a4430'); },
     hairBack(g, v) { poly(g, [[-22, -390], [-30, -360], [-34, -300], [-20, -296], [-14, -350]], '#3a2a24'); },
     hairFront(g, v, hx, hy, dk) { poly(g, [[hx - 25, hy + 4], [hx - 27, hy - 32, hx + 2, hy - 34], [hx + 24, hy - 32, hx + 25, hy - 8], [hx + 10, hy - 22], [hx - 14, hy - 12], [hx - 18, hy + 10]], '#3a2a24'); },
     props(g, P, h) { g.save(); g.translate(h.R[0], h.R[1]); g.rotate(-.6); poly(g, [[-4, -4], [4, -4], [4, 22], [-4, 22]], '#2a2a30'); poly(g, [[-6, -12], [6, -12], [6, -4], [-6, -4]], '#d8d8d0'); g.restore();
@@ -259,9 +278,35 @@ function thing(g, P) {
 export function person(g, id, x, y, H, pose = {}) {
   g.save(); g.translate(x, y); const k = H / 410; g.scale(pose.flip ? -k : k, k);
   el(g, 0, 0, 40, 7, 'rgba(0,0,0,.2)');
+  if (pose.crouch) { g.rotate(.12 * pose.crouch); g.scale(1, 1 - .34 * pose.crouch); }
+  if (pose.walk == null && pose.t != null && id !== 'thing') g.translate(Math.sin(pose.t * .55 + id.length) * 1.6, 0);
   if (id === 'thing') thing(g, pose);
-  else if (pose.walk != null || pose.view === 'side') side(g, CAST[id], pose);
   else if (pose.view === 'front' || pose.view === 'back') frontBack(g, CAST[id], pose, pose.view === 'back');
+  else if (pose.walk != null || pose.view === 'side') side(g, CAST[id], pose);
   else standing(g, CAST[id], pose);
   g.restore();
+}
+
+// ---------- extras: a deterministic stranger for every seed (market crowd) ----------
+const H32 = n => { n = Math.sin(n * 91.7 + 13.3) * 43758.5453; return n - Math.floor(n); };
+const pick = (a, r) => a[Math.floor(r * a.length) % a.length];
+export function extra(seed) {
+  const id = 'ex' + seed; if (CAST[id]) return id;
+  const r = k => H32(seed * 7.13 + k);
+  const skin = pick(['#e8b894', '#d6a07c', '#c48e68', '#b07a52', '#9a6a46', '#f0c8a4'], r(1));
+  const hair = pick(['#18161a', '#2a2020', '#3a2a24', '#4e3426', '#6a6a6a', '#9a9a9a'], r(2));
+  const top = pick(['#c8443a', '#3a6a9a', '#3e8a68', '#d8b24a', '#8a4a8a', '#e8e4dc', '#4a4a52', '#d4842e', '#5a8ab0', '#9a3a4a'], r(3));
+  const pants = pick(['#2c3c5c', '#3a3a40', '#5a4a3a', '#38425a', '#6a6a5a'], r(4));
+  const female = r(5) > .5, style = Math.floor(r(6) * 4);
+  const C = { name: '', top, pants, shoes: pick(['#1e1e22', '#5a3a2a', '#e4e2dc'], r(7)), skin, hairCol: hair, expr: pick(['neutral', 'smile', 'neutral'], r(8)) };
+  if (female && r(9) > .4) { C.skirt = pick(['#2a2a30', '#5a3e66', '#6a4a3a', '#3a5a7a'], r(10)); C.skirtLen = -130 - r(11) * 40; C.pants = skin; }
+  if (female) {
+    if (style % 2) C.hairBack = (g) => poly(g, [[-24, -390], [-30, -330], [-22, -316], [-14, -340]], hair);
+    else C.hairBack = (g) => el(g, -12, -398, 10, 9, hair);
+    C.hairFront = (g, v, hx, hy) => poly(g, [[hx - 26, hy + 8], [hx - 27, hy - 32, hx + 2, hy - 34], [hx + 24, hy - 32, hx + 25, hy - 10], [hx + 6, hy - 20], [hx - 16, hy - 8], [hx - 19, hy + 12]], hair);
+  } else if (style === 3) { C.bald = true; C.hairBack = (g) => el(g, -16, -362, 9, 14, hair); }
+  else Object.assign(C, shortHair(hair));
+  if (!female && style === 2) C.hat = (g, v, hx, hy) => { poly(g, [[hx - 26, hy - 16], [hx - 24, hy - 40, hx, hy - 42], [hx + 22, hy - 40, hx + 24, hy - 16]], pick(['#2a6ab0', '#c8443a', '#3a3a40'], r(12))); poly(g, [[hx - 2, hy - 18], [hx + 36, hy - 18], [hx + 32, hy - 13], [hx - 2, hy - 13]], '#1e1e22'); };
+  if (r(13) > .7) C.outfit = (g, P, dk) => poly(g, [[-20, -300], [22, -300], [24, -170], [-18, -170]], pick(['#e8dcc0', '#f2f2ee'], r(14)));   // an apron / a vest
+  CAST[id] = C; return id;
 }

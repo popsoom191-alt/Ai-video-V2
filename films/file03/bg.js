@@ -287,3 +287,51 @@ export function market(g, t) {
   }
   rect(g, 1560, 120, 300, 70, '#c8322c'); g.fillStyle = '#fff'; g.font = `700 34px ${TH}`; g.fillText('โอ๊ตการไฟฟ้า →', 1580, 168);   // the red sign far down the lane
 }
+
+// ---------- added for the no-cut rework ----------
+// looking up a straight flight of fire stairs from below; a steel door on the landing at the top
+// floor: the number painted on the wall · taped: chain + "do not enter" tape across the door · open: 0..1
+export function stairsUp(g, t, floor = 2, o = {}) {
+  const L = o.L ?? .8, sh = c => shade(c, L), top = 430;
+  vgrad(g, 0, 0, W, H, sh('#5e665a'), sh('#3e443c'));
+  poly(g, [[0, 0], [560, top - 260], [560, top], [0, H]], sh('#6a7266')); poly(g, [[W, 0], [1360, top - 260], [1360, top], [W, H]], sh('#626a5e'));   // side walls
+  rect(g, 560, top - 260, 800, 260, sh('#727a6e'));                                                                                                       // landing wall
+  for (let k = 0; k < 12; k++) { const u0 = k / 12, u1 = (k + 1) / 12, y0 = lerp(H, top, u0), y1 = lerp(H, top, u1), x0 = lerp(0, 560, u0), x1 = lerp(0, 560, u1);
+    poly(g, [[x0, y0], [W - x0, y0], [W - x1, y1], [x1, y1]], sh(k % 2 ? '#585e54' : '#646a60')); rect(g, x1, y1, W - 2 * x1, 4 + 6 * (1 - u1), sh('#3a4038')); }
+  g.strokeStyle = sh('#8a3a30'); g.lineWidth = 12; g.beginPath(); g.moveTo(40, 760); g.lineTo(560, top - 120); g.stroke();                                  // handrail
+  g.fillStyle = sh('#e8e2d0'); g.font = `700 150px ${TH}`; g.fillText(['', '', '๒', '๓', '๔'][floor], 1500, 330); g.font = `700 40px ${TH}`; g.fillText('ชั้น', 1520, 170);
+  // the steel door
+  const dx = 810, dw = 300, dy = top - 240, dh = 240, open = o.open || 0;
+  rect(g, dx - 14, dy - 14, dw + 28, dh + 14, sh('#3a3e3a'));
+  if (open > 0) { rect(g, dx, dy, dw, dh, '#0a0c0a'); }
+  rect(g, dx, dy, dw * (1 - open * .85), dh, sh('#7a7e7a')); rect(g, dx + dw * (1 - open * .85) - 30, dy + 120, 16, 30, sh('#c8c0a0'));
+  rect(g, dx + 90, dy - 46, 120, 34, sh('#2a7a4a')); g.fillStyle = sh('#e8f8ee'); g.font = `700 24px ${TH}`; g.fillText('ทางหนีไฟ', dx + 98, dy - 22);
+  if (o.taped) {
+    g.strokeStyle = '#9a9a9a'; g.lineWidth = 6; g.setLineDash([14, 8]); g.beginPath(); g.moveTo(dx - 20, dy + 100); g.quadraticCurveTo(dx + dw / 2, dy + 140, dx + dw + 20, dy + 100); g.stroke(); g.setLineDash([]);
+    for (const [y, r] of [[dy + 70, -.06], [dy + 160, .08]]) { g.save(); g.translate(dx + dw / 2, y); g.rotate(r); rect(g, -200, -16, 400, 32, '#e8c43a'); g.fillStyle = '#1a1a1e'; g.font = `700 20px ${TH}`; g.textAlign = 'center'; for (let k = -2; k <= 2; k++) g.fillText('ห้ามเข้า', k * 82, 7); g.textAlign = 'left'; g.restore(); }
+  }
+}
+// where on the flight a person stands: u = 0 bottom (near) … 1 the landing; returns [x, y, scale]
+export const stairPos = (u, side = 0) => [lerp(960 + side * 200, 960 + side * 60, u), lerp(H + 60, 430, u), lerp(1.25, .42, u)];
+// inside the lab looking at its door; open 0..1 shows the corridor beyond
+export function labDoor(g, t, open = 0, drawCorridor) {
+  vgrad(g, 0, 0, W, H, '#4e5a58', '#2e3634'); rect(g, 0, 830, W, 250, '#3e4440');
+  const dx = 760, dw = 400, dy = 260, dh = 600;
+  rect(g, dx - 24, dy - 24, dw + 48, dh + 24, '#3a4a40');
+  if (open > 0) { g.save(); g.beginPath(); g.rect(dx, dy, dw, dh); g.clip(); g.translate(dx, dy); g.scale(dw / W, dh / H); drawCorridor(); g.restore(); }
+  const w = dw * (1 - open * .9); rect(g, dx, dy, w, dh, '#6a4a34'); rect(g, dx + 30, dy + 40, w - 60, 200, '#1a2420'); rect(g, dx + w - 40, dy + 300, 14, 40, '#c8c0a0');
+  rect(g, 200, 300, 380, 260, '#e6ece8'); g.fillStyle = '#2a3a7a'; g.font = `700 40px ${TH}`; g.fillText('โครงการ ๓', 230, 370);
+}
+// the market with a noodle stall in front: a steaming pot, two tables with stools
+export function market2(g, t) {
+  market(g, t);
+  rect(g, 1180, 560, 560, 220, '#b8322c'); rect(g, 1180, 540, 560, 30, '#8a2420'); g.fillStyle = '#fff'; g.font = `700 40px ${TH}`; g.fillText('ก๋วยเตี๋ยวเรือ', 1340, 620);
+  g.fillStyle = '#3a3a40'; g.beginPath(); g.ellipse(1300, 540, 70, 24, 0, 0, 7); g.fill();
+  for (let k = 0; k < 4; k++) { const ph = (t * .5 + k * .25) % 1; g.fillStyle = `rgba(255,255,255,${.35 * (1 - ph)})`; g.beginPath(); g.ellipse(1290 + Math.sin(ph * 6 + k) * 16, 520 - ph * 160, 20 + ph * 30, 14 + ph * 20, 0, 0, 7); g.fill(); }
+  for (const x of [1220, 1560]) { rect(g, x, 860, 260, 18, '#d8d0c0'); rect(g, x + 20, 878, 12, 100, '#8a8a8a'); rect(g, x + 228, 878, 12, 100, '#8a8a8a');
+    for (const b of [x + 60, x + 190]) { g.fillStyle = '#e8e4dc'; g.beginPath(); g.ellipse(b, 852, 34, 12, 0, 0, 7); g.fill(); g.fillStyle = '#b8642a'; g.beginPath(); g.ellipse(b, 850, 26, 7, 0, 0, 7); g.fill(); } }
+}
+// a plastic stool (scene props sit people on it)
+export function stool(g, x, y, s = 1) { g.fillStyle = '#c8322c'; g.fillRect(x - 34 * s, y - 92 * s, 68 * s, 12 * s); g.fillRect(x - 30 * s, y - 80 * s, 8 * s, 80 * s); g.fillRect(x + 22 * s, y - 80 * s, 8 * s, 80 * s); }
+// a folded towel on the desk; covered 0..1 folds it over the tape
+export function towel(g, x, y, covered = 0) { rect(g, x - 70, y - 8, 140, 16, '#e8e2d4'); if (covered > 0) { g.save(); g.translate(x - 70, y - 8); g.scale(1, -covered); g.fillStyle = '#d8d0c0'; g.fillRect(0, -40, 140, 40); g.restore(); } }

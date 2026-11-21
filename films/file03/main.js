@@ -78,5 +78,6 @@ LINES.forEach(l => EV.push({ t: l.t, type: 'line', id: l.id, who: l.who }));
 SCENES.forEach(s => { (s.ev || []).forEach(([at, type]) => EV.push({ t: s.t0 + at, type })); if (s.tape) EV.push({ t: s.t0, type: 'tapeScene', d: s.d }); });
 EV.sort((a, b) => a.t - b.t);
 window.LINES_EXPORT = LINES.map(l => ({ id: l.id, who: l.who, th: l.th }));
-window.DUR = DUR; window.EV = EV; window.render = Q.has('sheet') ? () => sheet(g) : render;
+const PV = Q.get('preview') ? (await import('./preview.js')).preview : null;
+window.DUR = DUR; window.EV = EV; window.render = PV ? t => PV(g, +Q.get('preview'), 3 + t) : Q.has('sheet') ? () => sheet(g) : render;
 window.render(0); window.READY = true;
