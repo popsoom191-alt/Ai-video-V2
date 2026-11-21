@@ -61,7 +61,8 @@ Animations made in code (Canvas2D in a headless browser → mp4). The user write
   - `films/file03/cast_sanlan.js`: the cast (ปั้น at 8/15/22/30, แม่, ยาย, พี่โอ, เฮียกิม, นุ่น, คุณธนา). `headScale` and `legScale` give child proportions. Still to design: เฮียกิม's daughter, the customer who spits, the investor who throws the file.
   - New actions in `actions.js` (countMoney, carrySack, readBook, headInHands, scrolledPhone, dustOff, fistPump, handshake) and new props (book, coin, note, sack).
   - Sheets: `films/file03/epsanlan.js` (`?ep=sanlan`).
-- **Next:** chapter 1 "เหรียญบาทของยาย" (~5 min) as a sample. Beats are in PLOT.md: canal house, curry stall, grandma under the lamp, classroom laughter, first sale cheated → fall 1. Show stills first.
+- **Whole film built (2026-11-21):** `eps1.js`…`eps6.js` (ch 1–5 + ending), joined in `epsall.js` (`?ep=sall`, 29:11). UI cards in `sanlan_ui.js`, extra backgrounds in `bg_sanlan2.js`. Talk gestures are off for `s*` episodes (`NOGEST` in main.js). Mix: `mix.py sall` (piano bed for childhood and the ending, drone for the falls). Output `sanlan-full.mp4`. Subtitles only, no voices. Still rough: coin-hand insert, the lamp looks like a candle, desks overlap in the classroom; Kim's daughter's ledger box not yet confirmed by the user.
+- **Earlier step:** chapter 1 "เหรียญบาทของยาย" (~5 min) as a sample. Beats are in PLOT.md: canal house, curry stall, grandma under the lamp, classroom laughter, first sale cheated → fall 1. Show stills first.
 
 ## The user's rules (keep all of them)
 - **Within one place, no cuts:** walk people to where they talk and let the camera follow. Show the journey between places. A time jump fades over a clock. Cuts are allowed only into a screen, a phone, an insert, or a memory.
