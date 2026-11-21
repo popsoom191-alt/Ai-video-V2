@@ -1,0 +1,38 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Tape No. 9 — cel model sheets</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>html,body{margin:0;background:#cfcad6;overflow:hidden}canvas{display:block}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+import { bust, CAST } from './cast.js';
+const which = new URLSearchParams(location.search).get('sheet') || 'lineup';
+for (const w of [400, 600, 700]) await document.fonts.load(`${w} 40px 'IBM Plex Sans Thai'`);
+const g = document.getElementById('c').getContext('2d'), TH = "'IBM Plex Sans Thai'";
+const txt = (t, x, y, s, w = 700, c = '#2a2436', a = 'left') => { g.font = `${w} ${s}px ${TH}`; g.fillStyle = c; g.textAlign = a; g.textBaseline = 'alphabetic'; g.fillText(t, x, y); };
+function cell(x, y, w, h, label, fn, bg = '#e4e0e8') {
+  g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); g.fillStyle = bg; g.fillRect(x, y, w, h); fn(); g.restore();
+  g.strokeStyle = '#8a8494'; g.lineWidth = 2; g.strokeRect(x + 1, y + 1, w - 2, h - 2);
+  if (label) txt(label, x + 16, y + 40, 28, 600, bg === '#e4e0e8' ? '#3a3448' : '#d8d2e4');
+}
+function render() {
+  if (which === 'lineup') {
+    g.fillStyle = '#1c1a26'; g.fillRect(0, 0, 1920, 1080);
+    txt('ม้วนที่ ๙ — ตัวละคร', 960, 90, 64, 700, '#f2ece0', 'center');
+    const ids = ['tham', 'tonkhao', 'jit', 'somchai', 'on', 'onGhost'];
+    ids.forEach((id, i) => cell(i * 320, 130, 320, 840, '', () => { g.translate(i * 320 + 165, 130 + 330); g.scale(1.25, 1.25); bust(g, id, { view: 'q', expr: id === 'tham' ? 'focus' : id === 'tonkhao' ? 'smileopen' : id === 'on' ? 'smile' : 'neutral' }); }, id === 'onGhost' ? '#2a2834' : '#e4e0e8'));
+    ids.forEach((id, i) => { txt(CAST[id].name, i * 320 + 160, 1030, 34, 700, i === 0 ? '#e8c46a' : '#f2ece0', 'center'); });
+    txt('พระเอก', 160, 1068, 24, 600, '#e8c46a', 'center');
+    return;
+  }
+  const c = CAST[which], ghost = which === 'onGhost';
+  g.fillStyle = ghost ? '#22202c' : '#cfcad6'; g.fillRect(0, 0, 1920, 1080);
+  txt(c.name, 24, 56, 46, 700, ghost ? '#f2ece0' : '#2a2436'); txt(c.role, 24 + g.measureText(c.name).width + 30, 52, 28, 600, ghost ? '#c8a0a0' : '#7a3a3a');
+  const bg = ghost ? '#2e2c3a' : '#e4e0e8';
+  [['สามส่วนสี่', 'q'], ['ด้านข้าง', 'side'], ['ด้านหน้า', 'front']].forEach(([lab, view], i) => cell(i * 640, 70, 640, 560, lab, () => { g.translate(i * 640 + 330, 70 + 270); g.scale(1.5, 1.5); bust(g, which, { view, expr: which === 'tham' ? 'focus' : 'neutral' }); }, bg));
+  const ex = ghost ? [['นิ่ง', 'neutral'], ['เอียงคอ', 'neutral'], ['ใกล้เข้ามา', 'neutral'], ['ในเทป', 'neutral']]
+    : which === 'tham' ? [['สังเกต', 'focus'], ['มั่นใจ', 'smirk'], ['ตกใจ', 'surprised'], ['กังวล', 'worried']]
+    : [['ยิ้ม', 'smileopen'], ['ตกใจ', 'surprised'], ['กลัว', 'scared'], ['เศร้า', 'sad']];
+  ex.forEach(([lab, expr], i) => cell(i * 480, 630, 480, 450, lab, () => { g.translate(i * 480 + 250, 630 + 225); const s = ghost && i === 2 ? 1.9 : 1.35; g.scale(s, s); if (ghost && i === 1) g.rotate(.22); bust(g, which, { view: 'q', expr }); }, bg));
+}
+window.render = () => render(); window.DUR = 1; render(); window.READY = true;
+</script></body></html>

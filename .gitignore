@@ -5,3 +5,4 @@ films/*/fonts/*.woff2
 films/*/fonts/*.ttf
 films/*/stills/
 __pycache__/
+films/_ref/
