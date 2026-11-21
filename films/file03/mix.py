@@ -7,7 +7,9 @@ from scipy.ndimage import uniform_filter1d
 from core.audio.sfx import SR, bp, lp, hp, add, limit, compress
 from core.audio import sampler as S
 rng = np.random.default_rng(3)
-E = json.load(open(os.path.join(HERE, 'events.json'))); DUR = E['dur']; EV = E['ev']; N = int(DUR * SR)
+EP = sys.argv[1] if len(sys.argv) > 1 else '1'
+EVF = 'events.json' if EP == '1' else f'events_ep{EP}.json'; VDIR = 'voices' if EP == '1' else f'voices_ep{EP}'; OUTF = 'mix.wav' if EP == '1' else f'mix_ep{EP}.wav'
+E = json.load(open(os.path.join(HERE, EVF))); DUR = E['dur']; EV = E['ev']; N = int(DUR * SR)
 tt = np.arange(N) / SR; mix = np.zeros((N, 2)); sec = lambda d: int(round(d * SR)); nz = lambda n: rng.standard_normal(n)
 def put(x, t, g=1., pan=0.):
     x = np.asarray(x, np.float64)
@@ -26,7 +28,9 @@ inTape = lambda t: tape[min(N - 1, sec(t))] > 0
 PITCH = {'fon': 3}   # ElevenLabs gives each character its own voice; only Fon is lifted to sound like a child
 for e in EV:
     if e['type'] != 'line': continue
-    y, sr = sf.read(os.path.join(HERE, 'voices', e['id'] + '.wav')); y = librosa.resample(y, orig_sr=sr, target_sr=SR)
+    vf = os.path.join(HERE, VDIR, e['id'] + '.wav')
+    if not os.path.exists(vf): continue   # not voiced yet: subtitles only
+    y, sr = sf.read(vf); y = librosa.resample(y, orig_sr=sr, target_sr=SR)
     y = librosa.effects.pitch_shift(y, sr=SR, n_steps=PITCH.get(e['who'], 0))
     y = compress(y / (np.abs(y).max() + 1e-9), .3, 3.0)
     if inTape(e['t']):   # a 1997 camcorder: thin, a little distorted; Ton is behind the camera, so he is close and dry
@@ -104,9 +108,11 @@ FX = {
   'dial': lambda t: [put(np.sin(2 * np.pi * 440 * np.arange(sec(.9)) / SR) * env(sec(.9), .01, .05) * .2, t + k * 1.1, .3) for k in range(2)],
 }
 FX['sting2'] = FX['sting']
+FX['market'] = lambda t: put(np.stack([lp(nz(sec(46)), 900) * .05] * 2, 1) * env(sec(46), 1, 1)[:, None], t)
+FX['tvon'] = lambda t: (put(click(.03) * 2, t, .5), put(np.sin(2 * np.pi * 15700 * np.arange(sec(11)) / SR) * .02, t, 1))
 for e in EV:
     f = FX.get(e['type'])
     if f: f(e['t'])
 for c in range(2): mix[:, c] = limit(mix[:, c], .95)
-sf.write(os.path.join(HERE, 'mix.wav'), mix.astype(np.float32), SR)
+sf.write(os.path.join(HERE, OUTF), mix.astype(np.float32), SR)
 print('mix peak %.2f, %.1fs' % (np.abs(mix).max(), DUR))

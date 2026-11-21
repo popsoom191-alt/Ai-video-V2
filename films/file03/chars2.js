@@ -232,6 +232,10 @@ export const CAST = {
     props(g, P, h) { cap(g, [h.R[0], h.R[1]], [h.R[0] - 2, h.R[1] - 18], 4, '#2a2a30'); el(g, h.R[0] - 2, h.R[1] - 23, 6, 7, '#3a3a40'); poly(g, [[h.R[0] - 9, h.R[1] - 16], [h.R[0] + 5, h.R[1] - 16], [h.R[0] + 5, h.R[1] - 6], [h.R[0] - 9, h.R[1] - 6]], '#b8322c'); },
     sideProps(g, P, h) { el(g, h[0] + 4, h[1] - 18, 6, 7, '#3a3a40'); },
   },
+  oatOld: { name: 'พี่โอ๊ต (2026)', role: 'ช่างไฟ · อายุ ๕๕', quote: 'ผมไม่ได้ตัดไฟ', bg: ['#6a5e3a', '#36301c'], skin: '#a8724c',
+    top: '#d4842e', pants: '#38425a', shoes: '#5a3a2a', ...shortHair('#7a7a7a'), expr: 'worried',
+    outfit(g, P, dk) { poly(g, [[-28, -318], [28, -318], [26, -232], [-26, -232]], '#c8be3a'); poly(g, [[-28, -318], [-12, -318], [-12, -232], [-26, -232]], dk('#c8be3a', .2)); g.fillStyle = '#d8d8d8'; g.fillRect(-27, -284, 54, 4); g.fillRect(-27, -262, 54, 4); g.fillStyle = '#d4842e'; g.fillRect(-4, -318, 8, 86); },
+    faceExtra(g, v, hx, hy) { g.strokeStyle = 'rgba(80,40,20,.4)'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(hx + 2, hy - 15); g.lineTo(hx + 12, hy - 16); g.stroke(); } },
   thing: { name: '???', role: 'ร่างในทางเดิน', quote: 'ไม่มีใครบอกได้ว่ามันคืออะไร', bg: ['#4a4840', '#14140f'] },
 };
 

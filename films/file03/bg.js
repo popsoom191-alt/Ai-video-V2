@@ -127,14 +127,14 @@ export function paper(g, t) {
   g.fillStyle = 'rgba(120,90,40,.25)'; g.beginPath(); g.ellipse(220, 300, 160, 90, .3, 0, 7); g.fill();   // a water stain
   g.restore();
 }
-export function vcr(g, t, k) {   // the tape slides into the slot as k goes 0 → 1
+export function vcr(g, t, k, label = '03  97') {   // the tape slides into the slot as k goes 0 → 1
   vgrad(g, 0, 0, W, H, '#1a1e26', '#0e1016');
   rr(g, 260, 480, 1400, 300, 20, '#1e1e24'); rect(g, 560, 560, 800, 60, '#08080c');
   g.fillStyle = '#3aff7a'; g.font = '700 46px monospace'; g.fillText(k > .9 ? 'PLAY' : '--:--', 1420, 640);
   const y = 300 + (1 - k) * 0 , slide = k * 260;
   g.save(); g.beginPath(); g.rect(0, 0, W, 590); g.clip();
   rr(g, 600, 240 + slide, 720, 400, 14, '#1a1a1e'); rr(g, 680, 290 + slide, 560, 120, 6, '#f2ecd8');
-  g.fillStyle = '#2a2a2a'; g.font = '700 70px monospace'; g.fillText('03  97', 760, 375 + slide); g.restore();
+  g.fillStyle = '#2a2a2a'; g.font = '700 70px monospace'; g.fillText(label, 760, 375 + slide); g.restore();
   const gr = g.createRadialGradient(960, 400, 20, 960, 500, 900); gr.addColorStop(0, 'rgba(255,200,120,.12)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
 }
 
@@ -201,5 +201,28 @@ export function workOrder(g, t) {
   const rows = [['อาคาร', 'วิชัยแล็บ'], ['ช่าง', 'โอ๊ต'], ['วันที่', '๒๐ พ.ย. ๒๕๔๐'], ['งาน', 'ตัดไฟชั้น ๔'], ['เวลา', '๐๒:๕๘']];
   rows.forEach(([k, v], i) => { g.font = `600 40px ${TH}`; g.fillStyle = '#6a6052'; g.fillText(k, -400, -220 + i * 100); g.fillStyle = i === 4 ? '#b3201c' : '#2a2622'; g.font = `700 46px ${TH}`; g.fillText(v, -160, -220 + i * 100); g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(-400, -200 + i * 100, 800, 2); });
   g.strokeStyle = '#2a3a8a'; g.lineWidth = 3; g.beginPath(); g.moveTo(120, 330); g.bezierCurveTo(180, 290, 220, 360, 300, 310); g.stroke();
+  g.restore();
+}
+
+// ---------- added for episode 2 ----------
+// Oat's electrical repair shop in the market, 2026, daytime
+export function oatShop(g, t) {
+  vgrad(g, 0, 0, W, H, '#7a6a52', '#4a3e30'); rect(g, 0, 860, W, 220, '#5a5040');
+  rect(g, 0, 0, W, 90, '#c8322c'); g.fillStyle = '#fff'; g.font = `700 54px ${TH}`; g.fillText('โอ๊ตการไฟฟ้า · ซ่อมพัดลม ทีวี วิทยุ', 60, 64);
+  for (let r = 0; r < 3; r++) { rect(g, 80, 260 + r * 170, 760, 12, '#5a4430'); for (let k = 0; k < 5; k++) { const x = 100 + k * 150, y = 160 + r * 170; if ((r + k) % 2) { rr(g, x, y, 120, 96, 8, '#3a3a40'); rect(g, x + 12, y + 12, 96, 66, '#2a3a40'); } else { g.fillStyle = '#d8d0c0'; g.beginPath(); g.arc(x + 60, y + 50, 46, 0, 7); g.fill(); g.strokeStyle = '#8a8a8a'; g.lineWidth = 3; for (let a = 0; a < 3; a++) { g.beginPath(); g.moveTo(x + 60, y + 50); g.lineTo(x + 60 + Math.cos(a * 2.1 + t * (k % 3 === 0 ? 8 : 0)) * 40, y + 50 + Math.sin(a * 2.1 + t * (k % 3 === 0 ? 8 : 0)) * 40); g.stroke(); } } } }
+  for (let k = 0; k < 9; k++) { g.strokeStyle = ['#c8322c', '#1a1a1e', '#2a6ab0', '#e0a830'][k % 4]; g.lineWidth = 6; g.beginPath(); g.moveTo(1000 + k * 40, 120); g.quadraticCurveTo(1020 + k * 40, 300 + (k % 3) * 40, 1040 + k * 40, 120); g.stroke(); }   // cable loops hanging
+  rect(g, 960, 640, 900, 40, '#6a5034'); rect(g, 990, 680, 30, 200, '#4a3a26'); rect(g, 1800, 680, 30, 200, '#4a3a26');                                                       // counter
+  rr(g, 1400, 560, 160, 80, 6, '#2a2a30'); g.fillStyle = '#e8463c'; g.font = '700 30px monospace'; g.fillText('230V', 1430, 612);
+  rect(g, 1600, 160, 260, 340, '#8a8e90'); rect(g, 1620, 180, 220, 300, '#a8acae'); for (let k = 0; k < 6; k++) rect(g, 1640 + (k % 3) * 66, 210 + Math.floor(k / 3) * 120, 40, 70, k === 3 ? '#e8c43a' : '#3a3a40');   // a breaker box on the wall
+}
+// the 1997 lab with the lights on and the experiment running (tape 01, a fixed camera on a tripod)
+export function labOn(g, t, ghostOnMonitor = 0) {
+  lab(g, t, 1);
+  for (let k = 0; k < 3; k++) { const x = 972 + k * 150; rect(g, x, 452, 106, 80, '#2a5a48'); if (ghostOnMonitor > 0 && k === 1) { g.fillStyle = `rgba(10,10,12,${ghostOnMonitor})`; g.beginPath(); g.ellipse(x + 53, 470, 6, 8, 0, 0, 7); g.fill(); g.fillRect(x + 47, 478, 12, 40); } else { g.strokeStyle = '#7af0b0'; g.lineWidth = 2; g.beginPath(); for (let i = 0; i < 20; i++) g.lineTo(x + 4 + i * 5, 492 + Math.sin(i * .9 + t * 5 + k) * 12); g.stroke(); } }
+}
+// Beer's shop seen from high in a corner, as an old camcorder would see it (the closing shot of episode 2)
+export function shopHigh(g, t) {
+  g.save(); g.translate(W / 2, H / 2); g.rotate(-.06); g.scale(.78, .78); g.translate(-W / 2, -H / 2 + 40);
+  shop(g, t, true, { clock: 1.2 });
   g.restore();
 }
