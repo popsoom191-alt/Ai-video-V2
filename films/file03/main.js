@@ -90,6 +90,17 @@ function card(lt, a, b, o) {
   if (o.en) { g.font = `600 17px ${TH}`; g.fillStyle = '#4a4a52'; g.fillText(o.en.toUpperCase(), x + 34, y + h - 34); g.fillStyle = '#d8323a'; g.fillRect(x + 34, y + h - 20, 72, 4); }
   g.restore();
 }
+// atmosphere layers (screen space): dust in light, window beams, low haze, a lamp glow, a fluorescent flicker, rain on glass
+function atmo(kind, t, o = {}) {
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+  if (kind === 'beams') { g.globalCompositeOperation = 'screen'; for (const [x0, w] of o.beams || [[1300, 170], [1520, 110], [1660, 70]]) { const gr = g.createLinearGradient(x0, 0, x0 - 520, H); gr.addColorStop(0, `rgba(255,240,205,${o.a ?? .2})`); gr.addColorStop(1, 'rgba(255,240,205,0)'); g.fillStyle = gr; g.beginPath(); g.moveTo(x0, 0); g.lineTo(x0 + w, 0); g.lineTo(x0 + w - 620, H); g.lineTo(x0 - 620, H); g.closePath(); g.fill(); } }
+  if (kind === 'dust') { for (let i = 0; i < (o.n || 70); i++) { const x = (hash(i) * W + Math.sin(t * .3 + i) * 30 + t * 6 * (hash(i + 9) - .3)) % W, y = (hash(i + 3) * H + Math.sin(t * .2 + i * 2) * 24 - t * 4 * hash(i + 5) + H) % H; g.fillStyle = `rgba(255,246,220,${(o.a ?? .5) * (.3 + .7 * Math.abs(Math.sin(t * .8 + i)))})`; g.beginPath(); g.arc(x, y, 1.2 + hash(i + 7) * 2.4, 0, 7); g.fill(); } }
+  if (kind === 'haze') { const gr = g.createLinearGradient(0, H * (o.top ?? .45), 0, H); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, o.col || 'rgba(180,190,200,.25)'); g.fillStyle = gr; g.fillRect(0, 0, W, H); }
+  if (kind === 'glow') { g.globalCompositeOperation = 'screen'; const r = o.r || 420, gr = g.createRadialGradient(o.x, o.y, 0, o.x, o.y, r); gr.addColorStop(0, o.col || 'rgba(255,200,130,.45)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(o.x - r, o.y - r, r * 2, r * 2); }
+  if (kind === 'flicker') { const f = Math.floor(t * 12), off = hash(f) > .9 || (hash(f * 3) > .97); if (off) { g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, 0, W, H); } }
+  if (kind === 'rain') { g.strokeStyle = `rgba(200,215,230,${o.a ?? .25})`; g.lineWidth = 1.6; for (let i = 0; i < (o.n || 260); i++) { const x = (hash(i) * W * 1.2 + t * 260) % (W * 1.2) - 100, y = (hash(i + 4) * H + t * 1400 * (.7 + .3 * hash(i + 1))) % H; g.beginPath(); g.moveTo(x, y); g.lineTo(x - 10, y + 34); g.stroke(); } }
+  g.restore();
+}
 // a small badge (top left): time and place
 function badge(lt, a, b, txt) {
   const k = ease(seg(lt, a, a + .4)) * (1 - ease(seg(lt, b - .4, b))); if (k <= 0) return;
@@ -106,7 +117,7 @@ const Q = new URLSearchParams(location.search), EP = Q.get('ep') || '1';
 const BG = await import('./bg.js');
 const { extra } = await import('./chars2.js');
 const SHOTS = await import('./shots.js');
-const SCENES = (await import(`./ep${EP}.js`)).default({ g, W, H, TH, person, extra, dof, fgBlur, grade, card, badge, ...SHOTS, P, K, camK, mover, cam, pov, walk, black, vhs, darkTorch, frozenTV, seg, ease, lerp, hash, clamp, ...BG });
+const SCENES = (await import(`./ep${EP}.js`)).default({ g, W, H, TH, person, extra, dof, fgBlur, grade, card, badge, atmo, ...SHOTS, P, K, camK, mover, cam, pov, walk, black, vhs, darkTorch, frozenTV, seg, ease, lerp, hash, clamp, ...BG });
 
 // ---------- timeline ----------
 let acc = 0; for (const s of SCENES) { s.t0 = acc; acc += s.d; }

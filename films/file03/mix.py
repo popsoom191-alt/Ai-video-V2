@@ -108,7 +108,16 @@ FX = {
   'dial': lambda t: [put(np.sin(2 * np.pi * 440 * np.arange(sec(.9)) / SR) * env(sec(.9), .01, .05) * .2, t + k * 1.1, .3) for k in range(2)],
 }
 FX['sting2'] = FX['sting']
-FX['market'] = lambda t: put(np.stack([lp(nz(sec(46)), 900) * .05] * 2, 1) * env(sec(46), 1, 1)[:, None], t)
+REAL = os.path.join(HERE, 'sfx_real')   # real CC0 recordings (credits in sfx_real/CREDITS.md)
+def realbed(name, start, d, a=1.5, r=1.5, cut=None):
+    y, sr = sf.read(os.path.join(REAL, name), always_2d=True); y = y[int(start * sr):int((start + d) * sr)]
+    y = librosa.resample(np.ascontiguousarray(y.T), orig_sr=sr, target_sr=SR).T
+    if y.shape[1] == 1: y = np.repeat(y, 2, 1)
+    if cut: y = np.stack([lp(y[:, 0], cut), lp(y[:, 1], cut)], 1)
+    y = y / (np.sqrt(np.mean(y ** 2)) + 1e-9)
+    return y * env(len(y), a, r)[:, None]
+# the market from inside Oat's shop: a real Bangkok market, muffled by the walls (was low-passed noise: it sounded like a storm)
+FX['market'] = lambda t: put(realbed('806522.mp3', 20, 60, 1.5, 2, cut=1600), t, .035)
 FX['knock'] = lambda t: [put(thump(110, .18) * .9 + bp(nz(sec(.18)), 400, 2000) * env(sec(.18), .002, .1) * .4, t + k * .32, .5) for k in range(3)]
 FX['startle'] = lambda t: put(bp(nz(sec(.4)), 1500, 6000) * env(sec(.4), .01, .3), t, .12)
 FX['sent'] = lambda t: put(np.sin(2 * np.pi * 1800 * np.arange(sec(.12)) / SR) * env(sec(.12), .005, .08) * .5, t, .3)
@@ -120,7 +129,8 @@ def babble(d):   # crowd murmur: many overlapping syllable-rate voices (band-pas
         e = np.repeat(np.clip(rng.standard_normal(n // 2400 + 2) * .6 + .4, 0, 1), 2400)[:n]
         x += bp(nz(n), 250 + k * 60, 1800 + k * 120) * uniform_filter1d(e, 1200)
     return x / (np.abs(x).max() + 1e-9)
-FX['crowd'] = lambda t: put(np.stack([babble(30), babble(30)], 1) * env(sec(30), 1, 1.5)[:, None], t, .09)
+# the market crowd outside: a real walk through a Bangkok market alley, plus a motorbike going by
+FX['crowd'] = lambda t: (put(realbed('457367.mp3', 10, 30, 1, 1.5), t, .07), put(realbed('19366.mp3', 30, 8, 1, 2), t + 12, .03))
 FX['tvon'] = lambda t: (put(click(.03) * 2, t, .5), put(np.sin(2 * np.pi * 15700 * np.arange(sec(11)) / SR) * .02, t, 1))
 for e in EV:
     f = FX.get(e['type'])
