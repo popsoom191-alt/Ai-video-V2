@@ -34,6 +34,18 @@ const ARMS = {
   strap: { L: [-28, -202], R: [16, -296], eR: [40, -252] },                                  // holding the bag strap
 };
 const SK = '#d9a07a';
+// a prop held in a hand: [hand, type, tilt, on]
+function drawProp(g, [k, type, rot = 0, on = 0], h) {
+  g.save(); g.translate(h[0] * .86, h[1] + 2); g.rotate(rot);
+  if (type === 'tape') { poly(g, [[-2, -12], [40, -12], [40, 12], [-2, 12]], '#1a1a1e'); poly(g, [[4, -8], [34, -8], [34, 0], [4, 0]], '#efe6cc'); }
+  if (type === 'torch') { poly(g, [[-4, -5], [26, -6], [30, -8], [30, 8], [26, 6], [-4, 5]], '#3a3a40'); el(g, 30, 0, 3, 8, on ? '#fff8d8' : '#9a9aa0'); if (on) { g.fillStyle = 'rgba(255,248,215,.22)'; g.beginPath(); g.moveTo(30, -6); g.lineTo(200, -60); g.lineTo(200, 60); g.lineTo(30, 6); g.closePath(); g.fill(); } }
+  if (type === 'phone') { poly(g, [[-6, -14], [8, -14], [8, 14], [-6, 14]], '#1a1a1e'); poly(g, [[-4, -11], [6, -11], [6, 11], [-4, 11]], '#5a8ab0'); }
+  if (type === 'key') { el(g, 4, 0, 5, 5, '#d8b24a'); poly(g, [[8, -1.5], [22, -1.5], [22, 1.5], [8, 1.5]], '#d8b24a'); }
+  if (type === 'paper') { poly(g, [[-4, -16], [30, -18], [32, 18], [-2, 20]], '#efe8d4'); g.fillStyle = 'rgba(60,50,40,.4)'; for (let i = 0; i < 4; i++) g.fillRect(2, -10 + i * 7, 22, 2); }
+  if (type === 'pen') { poly(g, [[0, -2], [26, -2], [30, 0], [26, 2], [0, 2]], '#2a4a8a'); }
+  if (type === 'cup') { poly(g, [[-2, -18], [18, -18], [16, 6], [0, 6]], '#e8e2d4'); poly(g, [[-2, -18], [18, -18], [18, -14], [-2, -14]], '#3a2a1e'); }
+  g.restore();
+}
 const hand = (g, x, y, c) => { el(g, x, y + 3, 5, 7, c); el(g, x + 3.5, y, 2.2, 3.4, c, -.5); };   // a small mitten with a thumb
 const carryBox = (g, x, y) => { poly(g, [[x - 40, y - 34], [x + 40, y - 34], [x + 40, y + 26], [x - 40, y + 26]], '#8a6a46'); poly(g, [[x - 40, y - 34], [x + 40, y - 34], [x + 40, y - 24], [x - 40, y - 24]], '#6a4e32'); };
 
@@ -50,12 +62,17 @@ function standing(g, C, P) {
     g.save(); g.translate(0, 88); standing(g, { ...C, skirt: null }, { ...P, _seated: true, noLegs: true }); g.restore(); return;
   }
   const skin = C.skin || SK, bob = 0;
+  g.save(); g.scale(.86, 1);   // a slimmer body, as in the references (the head is drawn at full width)
   // legs: long and thin, a shadow plane down the back edge
+  const cr = P.crouch || 0, drop = 104 * cr;   // a squat: the hips come down, the knees go forward
   if (!C.longSkirt && !P.noLegs) for (const [sx, c, fx] of [[-9, dk(C.pants, .12), -7], [9, C.pants, 2]]) {   // weight on the near leg; the far foot eased out
-    poly(g, [[sx - 8, -226], [sx + 8, -226], [sx + 7 + fx, -20], [sx - 6 + fx, -20]], c);
-    poly(g, [[sx - 8, -226], [sx - 3, -226], [sx - 2 + fx, -20], [sx - 6 + fx, -20]], dk(c, .25));
+    if (cr > .02) { const hip = [sx, -218 + drop], knee = [sx + 70 * cr, -112 + drop * .2], ank = [sx + fx, -22]; path(g, [hip, knee, ank], 15, c); }
+    else { poly(g, [[sx - 8, -226], [sx + 8, -226], [sx + 7 + fx, -20], [sx - 6 + fx, -20]], c);
+    poly(g, [[sx - 8, -226], [sx - 3, -226], [sx - 2 + fx, -20], [sx - 6 + fx, -20]], dk(c, .25)); }
     poly(g, [[sx - 7 + fx, -24], [sx + 8 + fx, -24], [sx + 15 + fx, -8], [sx + 15 + fx, 0], [sx - 8 + fx, 0]], C.shoes);
   }
+  if (drop) g.translate(0, drop);
+  const lean = P.lean || 0; if (lean) { g.translate(0, -222); g.rotate(lean); g.translate(0, 222); }   // bend at the hips
   C.skirt && poly(g, [[-27, -236], [27, -236], [34, C.skirtLen ?? -130], [-32, C.skirtLen ?? -130]], C.skirt);
   C.skirt && poly(g, [[-27, -236], [-12, -236], [-14, C.skirtLen ?? -130], [-32, C.skirtLen ?? -130]], dk(C.skirt, .2));
   const pose = ARMS[P.hold === 'box' ? 'chest' : (P.arms || (P.hold ? C.arms : null) || 'down')], hands = { L: P.hands?.L || pose.L, R: P.hands?.R || pose.R };
@@ -78,6 +95,9 @@ function standing(g, C, P) {
   if (A2 === 'cross' && !P.hands) { path(g, [eL, [hands.L[0], hands.L[1]]], 13, dk(C.sleeve || C.top, .3)); path(g, [eR, hands.R], 13, C.sleeve || C.top); }   // folded arms: both forearms in front
   else if (!pose.hide && !(IP && IP.hide && idleK > .7)) for (const k of ['L', 'R']) hand(g, hands[k][0], hands[k][1], k === 'L' ? dk(skin, .15) : skin);
   if (P.hold === 'box') carryBox(g, 22, -258); else if (P.hold) C.props && C.props(g, P, hands, dk, lt);
+  g.restore();
+  if (drop) g.translate(0, drop); if (lean) { g.translate(0, -222); g.rotate(lean); g.translate(0, 222); }   // the head follows the squat and the bend
+  if (P.prop) drawProp(g, P.prop, hands[P.prop[0]]);
   head(g, C, P, 'q');
   if (A2 === 'chin' && !P.hands?.R && (P.arms === 'chin' || idleK > .6)) { path(g, [[lerp2(eR[0], hands.R[0], .55), lerp2(eR[1], hands.R[1], .55)], hands.R], 13, C.sleeve || C.top); hand(g, hands.R[0], hands.R[1], skin); }   // the hand over the chin
 }
@@ -148,6 +168,7 @@ function frontBack(g, C, P, back) {
   const skin = C.skin || SK;
   const wph = P.walk;
   if (wph != null) g.translate(0, -Math.abs(Math.cos(wph)) * 4);
+  g.save(); g.scale(.86, 1);   // slimmer body
   if (!C.longSkirt) for (const sx of [-10, 10]) {
     const lift = wph == null ? 0 : Math.max(0, Math.sin(wph) * (sx < 0 ? 1 : -1)) * 26;   // the lifted foot rises and shortens (it swings toward/away from us)
     poly(g, [[sx - 8, -226], [sx + 8, -226], [sx + 7, -20 - lift], [sx - 7, -20 - lift]], sx < 0 ? dk(C.pants, .14) : C.pants);
@@ -165,21 +186,22 @@ function frontBack(g, C, P, back) {
   const arm = sd => { const s = [sd * 31, -318], k = sd > 0 ? 'R' : 'L', h = hands[k], L2 = A === 'chest' ? 30 : 60, e = (FS && !P.hands?.[k] && FS['e' + k]) || elbow(s, h, 62, L2, sd); path(g, [s, e, h], 11, sd < 0 ? dk(C.sleeve || C.top, .15) : (C.sleeve || C.top)); if ((!back || A === 'down') && !(FS && FS.hide)) hand(g, h[0], h[1], skin); };
   if (back) { torso(); arm(-1); arm(1); }
   else { torso(); C.outfit && C.outfit(g, P, dk, lt); arm(-1); arm(1); if (A === 'cross' && !P.hands) { const eL = FS.eL, eR = FS.eR; path(g, [eL, hands.L], 13, dk(C.sleeve || C.top, .15)); path(g, [eR, hands.R], 13, C.sleeve || C.top); } if (P.hold === 'box') carryBox(g, 0, -258); else if (P.hold) C.props && C.props(g, P, hands, dk, lt); }
+  g.restore();
   const hx = 0, hy = -366;
-  poly(g, [[-6, -342], [6, -342], [7, -320], [-6, -320]], dk(skin, .12));
-  g.translate(0, -338); g.scale(1.08, 1.08); g.translate(0, 338);   // a slightly larger head (person() restores)
+  poly(g, [[-5, -352], [5, -352], [6, -320], [-5, -320]], dk(skin, .12));   // a longer, thinner neck
+  g.translate(0, -8); g.translate(0, -338); g.scale(1.1, 1.1); g.translate(0, 338);   // a slightly larger head (person() restores)
   if (back) {
     C.hairBack && C.hairBack(g, 'back', dk);
     for (const sd of [-1, 1]) el(g, sd * 23, hy + 2, 4, 6, dk(skin, .1));
-    el(g, hx, hy, 24, 31, C.bald ? skin : (C.hairCol || '#2a2026'));
+    el(g, hx, hy, 26.5, 28.5, C.bald ? skin : (C.hairCol || '#2a2026'));
     if (C.hairCol && !C.bald) el(g, hx, hy + 12, 22, 20, dk(C.hairCol, .15));
     C.hat && C.hat(g, 'back', hx, hy, dk);
     return;
   }
   C.hairBack && C.hairBack(g, 'front', dk);
   for (const sd of [-1, 1]) el(g, sd * 24, hy + 2, 4, 6, dk(skin, .12));
-  el(g, hx, hy, 24, 31, skin);
-  g.save(); g.beginPath(); g.ellipse(hx, hy, 24, 31, 0, 0, 7); g.clip(); poly(g, [[hx - 30, hy - 40], [hx - 12, hy - 40], [hx - 16, hy + 40], [hx - 30, hy + 40]], dk(skin, .12)); g.restore();
+  el(g, hx, hy, 26.5, 28.5, skin);
+  g.save(); g.beginPath(); g.ellipse(hx, hy, 26.5, 28.5, 0, 0, 7); g.clip(); poly(g, [[hx - 30, hy - 40], [hx - 12, hy - 40], [hx - 16, hy + 40], [hx - 30, hy + 40]], dk(skin, .12)); g.restore();
   const e = P.expr || C.expr || 'neutral', lx = (P.look || 0) * 1.5;
   if (P.close) { closeEyes(g, C, P, e, [[hx - 9, 1, -1], [hx + 9, 1, 1]], hy, skin); for (const sd of [-1, 1]) el(g, hx + sd * 14, hy + 8, 5, 3, 'rgba(232,120,110,.3)'); g.strokeStyle = dk(skin, .2); g.lineWidth = 1.1; g.beginPath(); g.moveTo(hx - 1, hy + 2); g.quadraticCurveTo(hx + 3, hy + 8, hx - 1.5, hy + 9); g.stroke(); closeMouth(g, P, e, hx, hy + 17); C.faceExtra && C.faceExtra(g, 'front', hx - 10, hy, dk); C.hairFront && C.hairFront(g, 'front', hx - 2, hy, dk); C.hat && C.hat(g, 'front', hx - 4, hy, dk); return; }
   for (const sd of [-1, 1]) {
@@ -203,14 +225,14 @@ function frontBack(g, C, P, back) {
 }
 
 // ---------- head: an egg, two-tone, small eyes ----------
-function head(g, C, P, view) { g.save(); g.translate(0, P.nod || 0); g.translate(0, -338); g.scale(1.08, 1.08); g.translate(0, 338); headInner(g, C, P, view); g.restore(); }
+function head(g, C, P, view) { const sk = C.skin || SK; poly(g, [[-5, -352], [5, -352], [6, -320], [-5, -320]], dk(sk, .12)); g.save(); g.translate(0, (P.nod || 0) - 8); g.translate(0, -338); g.scale(1.1, 1.1); g.translate(0, 338); headInner(g, C, P, view); g.restore(); }
 function headInner(g, C, P, view) {
   const skin = C.skin || SK, hx = view === 'side' ? 2 : 2, hy = -366;
   poly(g, [[-6, -342], [6, -342], [7, -320], [-6, -320]], dk(skin, .12));   // neck
   C.hairBack && C.hairBack(g, view, dk);
-  el(g, hx, hy, 24, 31, skin);
+  el(g, hx, hy, 26.5, 28.5, skin);
   // shadow plane on the far side of the face
-  g.save(); g.beginPath(); g.ellipse(hx, hy, 24, 31, 0, 0, 7); g.clip();
+  g.save(); g.beginPath(); g.ellipse(hx, hy, 26.5, 28.5, 0, 0, 7); g.clip();
   poly(g, [[hx - 30, hy - 40], [hx - 6, hy - 40], [hx - 12, hy + 4], [hx - 4, hy + 40], [hx - 30, hy + 40]], dk(skin, .16)); g.restore();
   el(g, hx - (view === 'side' ? 4 : 13), hy + 2, 4, 6, dk(skin, .12));   // ear
   const e = P.expr || C.expr || 'neutral', lx = (P.look || 0) * 1.5;
@@ -336,8 +358,11 @@ function thing(g, P) {
 export function person(g, id, x, y, H, pose = {}) {
   pose = { ...pose, id };
   g.save(); g.translate(x, y); const k = H / 410; g.scale(pose.flip ? -k : k, k);
+  if (pose.dx || pose.dy) g.translate(pose.dx || 0, pose.dy || 0);
   el(g, 0, 0, 40, 7, 'rgba(0,0,0,.2)');
-  if (pose.crouch) { g.rotate(.12 * pose.crouch); g.scale(1, 1 - .34 * pose.crouch); }
+  const qView = pose.view === 'front' || pose.view === 'back' || pose.walk != null || pose.view === 'side';
+  if (pose.crouch && qView) { g.rotate(.12 * pose.crouch); g.scale(1, 1 - .34 * pose.crouch); }   // the 3/4 figure bends its knees instead (standing())
+  if (pose.lean && qView) g.rotate(pose.lean * .5);
   if (pose.walk == null && pose.t != null && id !== 'thing') g.translate(Math.sin(pose.t * .55 + id.length) * 1.6, 0);
   if (id === 'thing') thing(g, pose);
   else if (pose.view === 'front' || pose.view === 'back') frontBack(g, CAST[id], pose, pose.view === 'back');
