@@ -137,3 +137,69 @@ export function vcr(g, t, k) {   // the tape slides into the slot as k goes 0 �
   g.fillStyle = '#2a2a2a'; g.font = '700 70px monospace'; g.fillText('03  97', 760, 375 + slide); g.restore();
   const gr = g.createRadialGradient(960, 400, 20, 960, 500, 900); gr.addColorStop(0, 'rgba(255,200,120,.12)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
 }
+
+// ---------- added for the reworked episode ----------
+// the missing-person poster: on the gate (small) or as a close-up
+export function poster(g, x, y, s, rot = 0) {
+  g.save(); g.translate(x, y); g.rotate(rot); g.scale(s, s);
+  rect(g, -150, -210, 300, 420, '#f2ecdc'); rect(g, -150, -210, 300, 70, '#c8322c');
+  g.fillStyle = '#fff'; g.font = `700 46px ${TH}`; g.textAlign = 'center'; g.fillText('ประกาศคนหาย', 0, -160);
+  rect(g, -80, -125, 160, 170, '#b8b0a0');                                                                 // a photo
+  g.fillStyle = '#1a1a1e'; g.beginPath(); g.ellipse(0, -60, 44, 48, 0, 0, 7); g.fill();
+  g.fillStyle = '#dcaa86'; g.beginPath(); g.ellipse(0, -48, 34, 40, 0, 0, 7); g.fill(); rect(g, -60, -10, 120, 55, '#f6f6f2');
+  g.fillStyle = '#2a2622'; g.font = `700 34px ${TH}`; g.fillText('ด.ญ.ฝน อายุ ๘ ปี', 0, 92);
+  g.font = `400 22px ${TH}`; g.fillText('หายตัวที่ตึกวิชัยแล็บ', 0, 128); g.fillText('๑๓ พ.ย. ๒๕๔๐', 0, 158);
+  g.fillText('พบเห็นโปรดแจ้ง ๑๙๑', 0, 190); g.textAlign = 'left';
+  g.restore();
+}
+export function gate(g, t) {
+  exterior(g, t);
+  rect(g, 720, 760, 480, 170, '#25252c'); for (let k = 0; k < 12; k++) rect(g, 730 + k * 40, 760, 10, 170, '#34343c');   // the gate
+  g.strokeStyle = '#8a8a90'; g.lineWidth = 6; g.beginPath(); g.arc(960, 845, 26, 0, 7); g.stroke();                     // chain lock
+  poster(g, 1120, 830, .3, .06);
+}
+// the fire stairs: a landing with the floor number painted on the wall
+export function stairs(g, t, floor = 2, L = 1) {
+  const sh = c => shade(c, L);
+  vgrad(g, 0, 0, W, H, sh('#6e766a'), sh('#4a5248'));
+  for (let k = 0; k < 9; k++) { const y = 1080 - k * 70, x0 = 200 + k * 90; poly(g, [[x0, y], [1920, y], [1920, y - 70], [x0 + 90, y - 70]], sh(k % 2 ? '#5a6056' : '#62685e')); rect(g, x0, y - 6, 1920, 6, sh('#3a4038')); }
+  g.strokeStyle = sh('#8a3a30'); g.lineWidth = 10; g.beginPath(); g.moveTo(160, 1000); g.lineTo(1000, 420); g.stroke();   // the handrail
+  g.fillStyle = sh('#e8e2d0'); g.font = `700 260px ${TH}`; g.fillText(['', '', '๒', '๓', '๔'][floor], 1350, 420);
+  g.font = `700 50px ${TH}`; g.fillText('ชั้น', 1250, 260);
+  rect(g, 1300, 80, 160, 60, sh('#2a7a4a')); g.fillStyle = sh('#e8f8ee'); g.font = `700 34px ${TH}`; g.fillText('ทางหนีไฟ', 1314, 122);
+  if (floor === 4) {   // a chain and police tape across the door
+    rect(g, 1180, 460, 440, 520, sh('#3a3e3a'));
+    g.strokeStyle = '#9a9a9a'; g.lineWidth = 8; g.setLineDash([18, 10]); g.beginPath(); g.moveTo(1160, 640); g.quadraticCurveTo(1400, 700, 1640, 640); g.stroke(); g.setLineDash([]);
+    for (const [y, r] of [[580, -.08], [760, .1]]) { g.save(); g.translate(1400, y); g.rotate(r); rect(g, -280, -24, 560, 48, '#e8c43a'); g.fillStyle = '#1a1a1e'; g.font = `700 30px ${TH}`; g.textAlign = 'center'; for (let k = -2; k <= 2; k++) g.fillText('ห้ามเข้า', k * 120, 10); g.textAlign = 'left'; g.restore(); }
+  }
+}
+// Dr. Wichai's lab: a whiteboard, old equipment, a tape shelf with slot 01 empty
+export function lab(g, t, L = .8) {
+  const sh = c => shade(c, L);
+  vgrad(g, 0, 0, W, H, sh('#4e5a58'), sh('#2e3634')); rect(g, 0, 830, W, 250, sh('#3e4440'));
+  rect(g, 140, 170, 720, 420, sh('#e6ece8')); rect(g, 140, 590, 720, 18, sh('#9a9a9a'));
+  g.fillStyle = sh('#2a3a7a'); g.font = `700 64px ${TH}`; g.fillText('โครงการ ๓', 200, 270);
+  g.font = `400 34px ${TH}`; g.fillText('ชั้น ๔ · ห้ามเปิดไฟหลัง ๐๒:๕๘', 200, 330);
+  g.strokeStyle = sh('#2a3a7a'); g.lineWidth = 4; g.beginPath(); g.moveTo(220, 470); for (let k = 0; k < 12; k++) g.lineTo(220 + k * 50, 470 - Math.sin(k * 1.3) * 60 - k * 6); g.stroke();
+  g.fillStyle = sh('#b8322c'); g.font = `700 40px ${TH}`; g.fillText('๗ คน', 620, 540);
+  // equipment: a rack of old monitors and a chair with straps
+  for (let k = 0; k < 3; k++) { rr(g, 960 + k * 150, 440, 130, 110, 8, sh('#2a2a30')); rect(g, 972 + k * 150, 452, 106, 80, sh(k === 1 ? '#1e3a2e' : '#1a2228')); }
+  rect(g, 940, 550, 470, 280, sh('#3a3e44'));
+  rect(g, 1060, 650, 120, 20, sh('#5a3a2a')); rect(g, 1060, 560, 20, 100, sh('#5a3a2a')); rect(g, 1080, 590, 80, 8, sh('#2a2a2a'));
+  // the tape shelf: slots 01–09, 01 empty
+  rect(g, 1480, 260, 340, 560, sh('#5a4430'));
+  for (let k = 0; k < 9; k++) { const x = 1500 + (k % 3) * 104, y = 290 + Math.floor(k / 3) * 170; rect(g, x, y, 92, 140, sh('#2a2016'));
+    if (k) { rect(g, x + 8, y + 10, 76, 120, sh('#1a1a1e')); rect(g, x + 14, y + 20, 64, 26, sh('#ede6d0')); g.fillStyle = sh('#2a2a2a'); g.font = '700 20px monospace'; g.fillText('0' + (k + 1), x + 30, y + 40); }
+    else { g.fillStyle = sh('#e8e2d0'); g.font = '700 24px monospace'; g.fillText('01', x + 30, y + 80); } }
+}
+// the electrician's work order, found in the box
+export function workOrder(g, t) {
+  vgrad(g, 0, 0, W, H, '#2a2620', '#16140f');
+  g.save(); g.translate(960, 540); g.rotate(.03);
+  rect(g, -460, -400, 920, 800, '#f2e8c8'); rect(g, -460, -400, 920, 90, '#e8c43a');
+  g.fillStyle = '#2a2622'; g.font = `700 50px ${TH}`; g.fillText('ใบสั่งงานซ่อมไฟฟ้า', -420, -340);
+  const rows = [['อาคาร', 'วิชัยแล็บ'], ['ช่าง', 'โอ๊ต'], ['วันที่', '๒๐ พ.ย. ๒๕๔๐'], ['งาน', 'ตัดไฟชั้น ๔'], ['เวลา', '๐๒:๕๘']];
+  rows.forEach(([k, v], i) => { g.font = `600 40px ${TH}`; g.fillStyle = '#6a6052'; g.fillText(k, -400, -220 + i * 100); g.fillStyle = i === 4 ? '#b3201c' : '#2a2622'; g.font = `700 46px ${TH}`; g.fillText(v, -160, -220 + i * 100); g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(-400, -200 + i * 100, 800, 2); });
+  g.strokeStyle = '#2a3a8a'; g.lineWidth = 3; g.beginPath(); g.moveTo(120, 330); g.bezierCurveTo(180, 290, 220, 360, 300, 310); g.stroke();
+  g.restore();
+}

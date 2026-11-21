@@ -3,9 +3,11 @@ The style (intercom speaker, quiet guard, whisper) is added later in mix.py."""
 import os, json, torch, soundfile as sf, numpy as np
 from transformers import VitsModel, AutoTokenizer
 HERE = os.path.dirname(os.path.abspath(__file__))
-LINES = json.load(open(os.path.join(HERE, 'lines.json')))
+import sys
+LINES = json.load(open(os.path.join(HERE, sys.argv[1] if len(sys.argv) > 1 else 'lines.json')))
 m = VitsModel.from_pretrained('facebook/mms-tts-tha'); tok = AutoTokenizer.from_pretrained('facebook/mms-tts-tha')
-os.makedirs(os.path.join(HERE, 'voices'), exist_ok=True); dur = {}
+os.makedirs(os.path.join(HERE, 'voices'), exist_ok=True)
+DP = os.path.join(HERE, 'voices', 'dur.json'); dur = json.load(open(DP)) if os.path.exists(DP) else {}
 for L in LINES:
     m.speaking_rate = L.get('speed', 1.0); m.noise_scale = L.get('noise', .667)
     torch.manual_seed(L.get('seed', 1))
