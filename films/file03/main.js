@@ -46,16 +46,55 @@ function vhs(t, osd) {
   g.fillText('REC', 1724, 100); g.fillText(osd.date || 'NOV.20.1997', 1340, 1000); g.fillText(osd.time || 'AM 2:04', 80, 1000);
   g.shadowOffsetX = g.shadowOffsetY = 0;
 }
-// Thai on top, English underneath, smaller
+// Thai on top, English underneath, smaller: white text with a dark outline and a soft shadow, no box (like the references)
 function subs(t) {
   const l = LINES.find(l => t >= l.t && t < l.end); if (!l) return;
-  g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.font = `600 46px ${TH}`; const w1 = g.measureText(l.th).width; g.font = `500 30px ${TH}`; const w2 = g.measureText(l.en).width;
-  const w = Math.max(w1, w2) + 60, y = H - 215;
-  g.fillStyle = 'rgba(0,0,0,.66)'; g.fillRect(W / 2 - w / 2, y - 44, w, 100);
-  g.font = `600 46px ${TH}`; g.fillStyle = l.who === 'beer' ? '#9ff0c4' : '#ffffff'; g.fillText(l.th, W / 2, y - 8);
-  g.font = `500 30px ${TH}`; g.fillStyle = '#c8c8c8'; g.fillText(l.en, W / 2, y + 34);
-  g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+  const a = Math.min(seg(t, l.t, l.t + .18), 1 - seg(t, l.end - .18, l.end)); if (a <= 0) return;
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = a; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+  const y = H - 150;
+  const txt = (s, font, col, yy, lw) => { g.font = font; g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 14; g.shadowOffsetY = 3; g.strokeStyle = 'rgba(10,10,14,.92)'; g.lineWidth = lw; g.strokeText(s, W / 2, yy); g.shadowColor = 'transparent'; g.fillStyle = col; g.fillText(s, W / 2, yy); };
+  txt(l.th, `700 54px ${TH}`, '#ffffff', y, 9);
+  txt(l.en, `500 30px ${TH}`, '#e2e2e2', y + 52, 6);
+  g.restore();
+}
+// ---------- film language from the references ----------
+const lay = document.createElement('canvas'); lay.width = W; lay.height = H; const lg = lay.getContext('2d');
+// depth of field: blur everything drawn so far (the background); what is drawn next stays sharp
+function dof(px = 10, dim = 0) { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); bg2.clearRect(0, 0, W, H); bg2.drawImage(cv, 0, 0); g.filter = `blur(${px}px)`; g.drawImage(buf, -px * 2, -px * 2, W + px * 4, H + px * 4); g.filter = 'none'; if (dim) { g.fillStyle = `rgba(0,0,0,${dim})`; g.fillRect(0, 0, W, H); } g.restore(); }
+// a blurred foreground (a shoulder in an over-the-shoulder shot), drawn with the current camera
+function fgBlur(px, fn) {
+  const m = g.getTransform(); g.save(); g.setTransform(1, 0, 0, 1, 0, 0); lg.clearRect(0, 0, W, H); lg.drawImage(cv, 0, 0); g.clearRect(0, 0, W, H);
+  g.setTransform(m); fn(); g.setTransform(1, 0, 0, 1, 0, 0);
+  bg2.clearRect(0, 0, W, H); bg2.drawImage(cv, 0, 0); g.clearRect(0, 0, W, H); g.drawImage(lay, 0, 0); g.filter = `blur(${px}px)`; g.drawImage(buf, 0, 0); g.filter = 'none'; g.restore();
+}
+// colour and light: a soft vignette and a tone over the whole frame
+const TONES = { day: 'rgba(255,236,200,.06)', night: 'rgba(30,50,90,.16)', dark: 'rgba(10,16,30,.22)', warm: 'rgba(255,190,120,.08)', tv: 'rgba(60,110,160,.14)' };
+function grade(tone = 'day', v = .42) {
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+  if (TONES[tone]) { g.fillStyle = TONES[tone]; g.fillRect(0, 0, W, H); }
+  const vg = g.createRadialGradient(W / 2, H * .46, H * .3, W / 2, H / 2, H * 1.02); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, `rgba(0,0,0,${v})`); g.fillStyle = vg; g.fillRect(0, 0, W, H);
+  g.restore();
+}
+// an info card on lined paper with a red margin, a chip and a heading (slides in, holds, slides out)
+function card(lt, a, b, o) {
+  const k = ease(seg(lt, a, a + .45)) * (1 - ease(seg(lt, b - .45, b))); if (k <= 0) return;
+  const x = o.x ?? 1240, y = (o.y ?? 110) + (1 - k) * 24, w = o.w ?? 600;
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = k; g.font = `600 ${o.size || 46}px ${TH}`;
+  const words = (o.th || '').split('\n'), h = 96 + words.length * (o.size || 46) * 1.25 + (o.en ? 40 : 0);
+  g.shadowColor = 'rgba(0,0,0,.35)'; g.shadowBlur = 24; g.shadowOffsetY = 8; g.fillStyle = '#f6f0e2'; g.beginPath(); g.roundRect(x, y, w, h, 6); g.fill(); g.shadowColor = 'transparent';
+  g.strokeStyle = 'rgba(120,150,200,.25)'; g.lineWidth = 1.5; for (let ly = y + 40; ly < y + h - 8; ly += 30) { g.beginPath(); g.moveTo(x + 14, ly); g.lineTo(x + w - 10, ly); g.stroke(); }
+  g.fillStyle = '#d8323a'; g.fillRect(x, y, 9, h);
+  g.font = `600 22px ${TH}`; const cw = g.measureText(o.chip).width + 62; g.fillStyle = '#1e1e24'; g.beginPath(); g.roundRect(x + 34, y + 20, cw, 38, 19); g.fill();
+  g.fillStyle = '#e8322c'; g.beginPath(); g.arc(x + 54, y + 39, 6, 0, 7); g.fill(); g.fillStyle = '#fff'; g.fillText(o.chip, x + 70, y + 47);
+  g.font = `600 ${o.size || 46}px ${TH}`; g.fillStyle = '#1f3c8a'; words.forEach((s, i) => g.fillText(s, x + 34, y + 110 + i * (o.size || 46) * 1.25));
+  if (o.en) { g.font = `600 17px ${TH}`; g.fillStyle = '#4a4a52'; g.fillText(o.en.toUpperCase(), x + 34, y + h - 34); g.fillStyle = '#d8323a'; g.fillRect(x + 34, y + h - 20, 72, 4); }
+  g.restore();
+}
+// a small badge (top left): time and place
+function badge(lt, a, b, txt) {
+  const k = ease(seg(lt, a, a + .4)) * (1 - ease(seg(lt, b - .4, b))); if (k <= 0) return;
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = k; g.font = `600 30px ${TH}`; const w = g.measureText(txt).width + 76;
+  g.fillStyle = 'rgba(14,14,18,.78)'; g.beginPath(); g.roundRect(70, 64, w, 56, 28); g.fill(); g.fillStyle = '#e8322c'; g.beginPath(); g.arc(102, 92, 8, 0, 7); g.fill(); g.fillStyle = '#f2f2ec'; g.fillText(txt, 124, 103); g.restore();
 }
 const darkTorch = (bx, by, r = 480, a = .96) => { const m = g.createRadialGradient(bx, by, 50, bx, by, r); m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(1, `rgba(0,0,0,${a})`); g.fillStyle = m; g.fillRect(-W, -H, W * 3, H * 3); };
 function frozenTV(drawFrame, t) {   // Beer's TV showing a paused frame, with "PAUSE"
@@ -66,7 +105,8 @@ function frozenTV(drawFrame, t) {   // Beer's TV showing a paused frame, with "P
 const Q = new URLSearchParams(location.search), EP = Q.get('ep') || '1';
 const BG = await import('./bg.js');
 const { extra } = await import('./chars2.js');
-const SCENES = (await import(`./ep${EP}.js`)).default({ g, W, H, TH, person, extra, P, K, camK, mover, cam, pov, walk, black, vhs, darkTorch, frozenTV, seg, ease, lerp, hash, clamp, ...BG });
+const SHOTS = await import('./shots.js');
+const SCENES = (await import(`./ep${EP}.js`)).default({ g, W, H, TH, person, extra, dof, fgBlur, grade, card, badge, ...SHOTS, P, K, camK, mover, cam, pov, walk, black, vhs, darkTorch, frozenTV, seg, ease, lerp, hash, clamp, ...BG });
 
 // ---------- timeline ----------
 let acc = 0; for (const s of SCENES) { s.t0 = acc; acc += s.d; }

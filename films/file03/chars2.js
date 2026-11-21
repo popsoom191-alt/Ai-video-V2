@@ -92,6 +92,41 @@ function side(g, C, P) {
   g.restore();
 }
 
+
+// ---------- close-up face (P.close): bigger eyes with whites, iris and a catch-light, lids, blush, lips ----------
+const FEM = { mind: 1, daeng: 1, nid: 1, fon: 1 };
+function closeEyes(g, C, P, e, pts, hy, skin) {
+  const lx = (P.look || 0) * 1.4, open = e === 'scared' ? 4.8 : e === 'worried' || e === 'sad' ? 3.3 : 3.9;
+  for (const [ex, sc, sd] of pts) {
+    const y = hy - 2, rx = 5.2 * sc;
+    if (P.blink) { g.strokeStyle = '#2a1c1e'; g.lineWidth = 1.3; g.beginPath(); g.moveTo(ex - rx, y); g.quadraticCurveTo(ex, y + 2.4, ex + rx, y); g.stroke(); }
+    else {
+      el(g, ex, y, rx, open, '#f7f2ea');
+      g.save(); g.beginPath(); g.ellipse(ex, y, rx, open, 0, 0, 7); g.clip();
+      el(g, ex + lx, y + .5, 3.2 * sc, 3.4, C.iris || '#4a2c1e'); el(g, ex + lx, y + .5, 1.8 * sc, 2, '#120a08');
+      el(g, ex + lx + 1.1 * sc, y - .9, 1, 1, '#ffffff'); el(g, ex + lx - 1 * sc, y + 1.7, .5, .5, 'rgba(255,255,255,.7)');
+      g.fillStyle = 'rgba(70,30,30,.22)'; g.fillRect(ex - rx, y - open, rx * 2, 1.8);
+      g.restore();
+      g.strokeStyle = '#24181a'; g.lineWidth = 1.5; g.lineCap = 'round'; g.beginPath(); g.moveTo(ex - rx - .4, y + .6); g.quadraticCurveTo(ex, y - open * 1.55, ex + rx + .4, y - .2); g.stroke();
+      g.strokeStyle = 'rgba(80,40,40,.35)'; g.lineWidth = .7; g.beginPath(); g.moveTo(ex - rx * .7, y + open * .8); g.quadraticCurveTo(ex, y + open * 1.15, ex + rx * .8, y + open * .7); g.stroke();
+      if (FEM[P.id]) cap(g, [ex + sd * (rx - .2), y - 1.2], [ex + sd * (rx + 1.6), y - 2.8], 1, '#24181a');
+      if (e === 'worried' || e === 'scared') { g.strokeStyle = 'rgba(80,40,40,.3)'; g.lineWidth = .6; g.beginPath(); g.moveTo(ex - rx * .6, y - open - 1.6); g.quadraticCurveTo(ex, y - open - 2.6, ex + rx * .6, y - open - 1.6); g.stroke(); }
+    }
+    const tl = e === 'worried' || e === 'scared' || e === 'sad' ? 2.4 : e === 'angry' || e === 'frown' ? -2.4 : 0;
+    g.strokeStyle = C.brow || dk(C.hairCol || '#2a2026', 0); g.lineWidth = 2.2; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(ex - 5 * sc, hy - 11 - sd * tl * .5 + (sd < 0 ? tl * .3 : 0)); g.quadraticCurveTo(ex, hy - 13.5 - (P.brow || 0), ex + 5 * sc, hy - 11 + sd * tl * .5); g.stroke();
+  }
+}
+function closeMouth(g, P, e, mx, my) {
+  const m = P.talk || 0;
+  if (m > .15) { el(g, mx, my, 3.6, 1.3 + m * 3, '#5a2228'); g.save(); g.beginPath(); g.ellipse(mx, my, 3.6, 1.3 + m * 3, 0, 0, 7); g.clip(); el(g, mx, my - 1.2 - m * 2.4, 3, 1.2, '#f2ece4'); el(g, mx, my + 1.4 + m * 2, 2.6, 1.6, '#b0565a'); g.restore(); }
+  else {
+    const c = e === 'smile' || e === 'happy' ? 1.8 : e === 'worried' || e === 'sad' || e === 'frown' ? -1.4 : e === 'scared' ? -.6 : .5;
+    g.strokeStyle = '#7a3a3e'; g.lineWidth = 1.4; g.lineCap = 'round'; g.beginPath(); g.moveTo(mx - 4, my); g.quadraticCurveTo(mx, my + c * 1.6, mx + 4, my); g.stroke();
+    el(g, mx, my + 2.6, 2.2, .8, 'rgba(160,70,70,.22)');
+  }
+}
+
 // ---------- front and back views (symmetric; the back hides the face under the hair) ----------
 function frontBack(g, C, P, back) {
   const skin = C.skin || SK;
@@ -126,6 +161,7 @@ function frontBack(g, C, P, back) {
   el(g, hx, hy, 24, 31, skin);
   g.save(); g.beginPath(); g.ellipse(hx, hy, 24, 31, 0, 0, 7); g.clip(); poly(g, [[hx - 30, hy - 40], [hx - 12, hy - 40], [hx - 16, hy + 40], [hx - 30, hy + 40]], dk(skin, .12)); g.restore();
   const e = P.expr || C.expr || 'neutral', lx = (P.look || 0) * 1.5;
+  if (P.close) { closeEyes(g, C, P, e, [[hx - 9, 1, -1], [hx + 9, 1, 1]], hy, skin); for (const sd of [-1, 1]) el(g, hx + sd * 14, hy + 8, 5, 3, 'rgba(232,120,110,.3)'); g.strokeStyle = dk(skin, .2); g.lineWidth = 1.1; g.beginPath(); g.moveTo(hx - 1, hy + 2); g.quadraticCurveTo(hx + 3, hy + 8, hx - 1.5, hy + 9); g.stroke(); closeMouth(g, P, e, hx, hy + 17); C.faceExtra && C.faceExtra(g, 'front', hx - 10, hy, dk); C.hairFront && C.hairFront(g, 'front', hx - 2, hy, dk); C.hat && C.hat(g, 'front', hx - 4, hy, dk); return; }
   for (const sd of [-1, 1]) {
     const ex = hx + sd * 9;
     if (P.blink) cap(g, [ex - 3 + lx, hy - 2], [ex + 3 + lx, hy - 2], 1.6, '#2a2026');
@@ -159,7 +195,8 @@ function headInner(g, C, P, view) {
   el(g, hx - (view === 'side' ? 4 : 13), hy + 2, 4, 6, dk(skin, .12));   // ear
   const e = P.expr || C.expr || 'neutral', lx = (P.look || 0) * 1.5;
   const eyes = view === 'side' ? [[hx + 15, 1]] : [[hx + 3, .9], [hx + 17, 1]];
-  for (const [ex, sc] of eyes) {
+  if (P.close) closeEyes(g, C, P, e, view === 'side' ? [[hx + 15, .8, 1]] : [[hx + 2, .78, -1], [hx + 17, .92, 1]], hy, skin);
+  else for (const [ex, sc] of eyes) {
     if (P.blink) { cap(g, [ex - 3 * sc + lx, hy - 2], [ex + 3 * sc + lx, hy - 2], 1.6, '#2a2026'); }
     else { el(g, ex + lx, hy - 2, 2.3 * sc, e === 'scared' ? 3.2 : 2.6, '#22181e'); cap(g, [ex - 4 * sc, hy - 6.5], [ex + 3.5 * sc, hy - 7], 1.4, dk(skin, .45)); }
     const t = e === 'worried' || e === 'scared' || e === 'sad' ? 2 : e === 'angry' || e === 'frown' ? -2 : 0;
@@ -168,7 +205,8 @@ function headInner(g, C, P, view) {
   poly(g, [[hx + 22, hy - 2], [hx + 27, hy + 7], [hx + 21, hy + 8]], dk(skin, .1));   // nose
   el(g, hx + 12, hy + 6, 4, 2.4, 'rgba(220,110,100,.28)');
   const m = P.talk || 0, mx = view === 'side' ? hx + 18 : hx + 12, my = hy + 16;
-  if (m > .15) el(g, mx, my, 3, 1.2 + m * 2.6, '#6a2a30');
+  if (P.close) { el(g, hx + 13, hy + 7, 5, 3, 'rgba(232,120,110,.3)'); closeMouth(g, P, e, mx, my + 1); }
+  else if (m > .15) el(g, mx, my, 3, 1.2 + m * 2.6, '#6a2a30');
   else if (e === 'smile' || e === 'happy') path(g, [[mx - 4, my - 1], [mx, my + 1.5], [mx + 4, my - 1]], 1.6, '#7a3a3a');
   else if (e === 'worried' || e === 'sad' || e === 'frown') path(g, [[mx - 4, my + 1], [mx, my - 1], [mx + 4, my + 1]], 1.6, '#7a3a3a');
   else if (e === 'scared') el(g, mx, my, 2.5, 3, '#6a2a30');
@@ -276,6 +314,7 @@ function thing(g, P) {
 }
 
 export function person(g, id, x, y, H, pose = {}) {
+  pose = { ...pose, id };
   g.save(); g.translate(x, y); const k = H / 410; g.scale(pose.flip ? -k : k, k);
   el(g, 0, 0, 40, 7, 'rgba(0,0,0,.2)');
   if (pose.crouch) { g.rotate(.12 * pose.crouch); g.scale(1, 1 - .34 * pose.crouch); }
