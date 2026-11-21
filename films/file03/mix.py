@@ -180,6 +180,10 @@ FX.update({
   'torch': lambda t: pfx(rs('457463.mp3'), t, .35),
   'ding': lambda t: pfx(rs('634327.mp3', 1.0, 4.0, .005), t, .2, .3),
 })
+# room tone outside the tape: the street faintly through the walls, so the shop is never dead silent
+_rt = realbed('804844.mp3', 0, 58, 2, 2, cut=900); _hop = len(_rt) - sec(2); room = np.zeros((N, 2))
+for i in range(0, N, _hop): j = min(N, i + len(_rt)); room[i:j] += _rt[:j - i]
+mix += room * (1 - tape)[:, None] * .006
 for e in EV:
     f = FX.get(e['type'])
     if f: f(e['t'])
