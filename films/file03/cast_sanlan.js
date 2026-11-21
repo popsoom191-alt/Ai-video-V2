@@ -46,5 +46,14 @@ const add = {
     top: '#4a4e56', pants: '#3a3e46', shoes: '#1a1a1e', coatLen: -200, ...neat('#5a5a5e'), faceExtra: glasses('#1a1a1a'),
     outfit(g) { P(g, [[-4, -322], [8, -322], [6, -230], [-2, -230]], '#e8e8ea'); P(g, [[0, -318], [4, -318], [5, -262], [1, -256], [-1, -262]], '#7a2a30'); } },
 };
+const kid = (top, pants, hair, skin, girl) => ({ name: '', skin, headScale: 1.3, legScale: .6, expr: 'smile', top, shoes: '#1e1e22', ...(girl ? { skirt: pants, skirtLen: -150, pants: skin, ...pony(hair) } : { skirt: pants, skirtLen: -176, pants: skin, ...crew(hair) }) });
+Object.assign(add, {
+  pan8s: { ...add.pan8, name: 'ปั้น · ชุดนักเรียน', top: '#f2f2ec', skirt: '#2c3a5a', outfit: null },
+  kidA: kid('#f2f2ec', '#2c3a5a', '#1a1616', '#d6a07c'), kidB: kid('#f2f2ec', '#2c3a5a', '#2a1e1a', '#e0b090', true), kidC: kid('#f2f2ec', '#2c3a5a', '#1a1414', '#c48a60'),
+  kidD: kid('#f2f2ec', '#2c3a5a', '#3a2a24', '#e0b494', true), kidE: kid('#f2f2ec', '#2c3a5a', '#141012', '#b8805a'),
+  bully: { ...kid('#f2f2ec', '#2c3a5a', '#141012', '#d8a880'), headScale: 1.26, legScale: .66, expr: 'smile' },
+  teacher: { name: 'ครู', skin: '#e0b494', top: '#d8c8e8', skirt: '#4a4a5a', skirtLen: -60, pants: '#e0b494', shoes: '#2a2a2a', expr: 'neutral', ...bun('#2a2020'), faceExtra: glasses('#4a3a3a') },
+  aunty: { name: 'ญาติ', skin: '#d0a07a', top: '#c8a03a', skirt: '#3a5a4a', skirtLen: -40, pants: '#d0a07a', shoes: '#3a2a1e', expr: 'smile', ...bun('#1e1818') },
+});
 Object.assign(CAST, add);
 export const SANLAN = Object.keys(add);

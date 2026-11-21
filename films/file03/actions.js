@@ -74,6 +74,9 @@ export const ACTIONS = {
   carrySack: { th: 'แบกกระสอบ', dur: 3, keys: [[0, {}], [.3, { R: [20, -400], L: [4, -396], dy: 4, lean: .06, prop: ['R', 'sack'] }], [1, { R: [20, -400], L: [4, -396], dy: 4, lean: .06, prop: ['R', 'sack'] }]] },
   dustOff: { th: 'ลุกปัดฝุ่น', dur: 2.6, keys: [[0, { crouch: .8, R: [60, -120], lean: .1 }], [.45, { crouch: .2, R: [40, -200] }], ...osc(.45, .9, 4, { R: [34, -180], L: [8, -184] }, { R: [40, -210], L: [14, -214] }), [1, {}]] },
   scrolledPhone: { th: 'อ่านข้อความหลอก', dur: 2.6, keys: [[0, {}], [.25, { R: [36, -290], nod: 6, prop: ['R', 'phone'], expr: 'smile' }], [.8, { R: [36, -290], nod: 6, prop: ['R', 'phone'], expr: 'smile' }], [1, {}]] },
+  stir: { th: 'คนหม้อแกง', dur: 3, keys: [[0, {}], ...Array.from({ length: 10 }, (_, i) => [.05 + i * .09, { R: [76 + 14 * Math.cos(i * 1.6), -238 + 8 * Math.sin(i * 1.6)], L: [60, -228], lean: .06, nod: 4 }]), [1, {}]] },
+  washDish: { th: 'ล้างจาน', dur: 3, keys: [[0, {}], ...osc(.05, .95, 12, { R: [70, -170], L: [52, -166], lean: .14, crouch: .35, nod: 6 }, { R: [84, -164], L: [62, -172], lean: .14, crouch: .35, nod: 6 }), [1, {}]] },
+  raiseHand: { th: 'ยกมือ', dur: 2.4, keys: [[0, {}], [.3, { R: [34, -450] }], [.75, { R: [34, -450] }], [1, {}]] },
   scratchHead: { th: 'เกาหัว', dur: 2, keys: [[0, {}], [.3, { R: [10, -410], expr: 'frown' }], ...osc(.3, .75, 6, { R: [6, -412], expr: 'frown' }, { R: [14, -408], expr: 'frown' }), [1, {}]] },
 };
 export const ACTION_NAMES = Object.keys(ACTIONS);

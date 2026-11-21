@@ -111,11 +111,11 @@ function atmo(kind, t, o = {}) {
 function hud(lt, o) {
   const k = Math.min(seg(lt, .3, .9), 1); if (k <= 0) return;
   const mins = (o.h ?? 0) * 60 + (o.m ?? 0) + (o.speed ?? 1) * lt / 60, hh = Math.floor(mins / 60) % 24, mm = Math.floor(mins % 60);
-  const fields = [`${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`, ...(o.fields || [])];
+  const fields = o.noClock ? [...(o.fields || [])] : [`${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`, ...(o.fields || [])];
   g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = k; g.font = `600 30px ${TH}`;
-  const ws = fields.map((f, i) => g.measureText(f).width + (i ? 44 : 30)), w = ws.reduce((a, b) => a + b, 0) + 30;
+  const fv = fields.map(f => typeof f === 'function' ? f(lt) : f); const ws = fv.map((f, i) => g.measureText(f).width + (i ? 44 : 30)), w = ws.reduce((a, b) => a + b, 0) + 30;
   g.fillStyle = 'rgba(20,22,28,.62)'; g.beginPath(); g.roundRect(60, 54, w, 62, 14); g.fill(); g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 2; g.stroke();
-  let x = 82; fields.forEach((f, i) => { if (i) { g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(x - 20, 70, 2, 30); } g.font = `${i ? 500 : 700} 30px ${TH}`; g.fillStyle = i && o.warn === i ? '#f2a24e' : '#f2f2ec'; g.fillText(f, x, 96); x += ws[i]; });
+  let x = 82; fields.forEach((f, i) => { if (typeof f === 'function') f = f(lt); if (i) { g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(x - 20, 70, 2, 30); } g.font = `${i ? 500 : 700} 30px ${TH}`; g.fillStyle = i && o.warn === i ? '#f2a24e' : '#f2f2ec'; g.fillText(f, x, 96); x += ws[i]; });
   g.restore();
 }
 // a small badge (top left): time and place
