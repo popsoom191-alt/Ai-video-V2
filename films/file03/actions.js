@@ -65,6 +65,15 @@ export const ACTIONS = {
   drive: { th: 'จับพวงมาลัย', dur: 2.4, keys: [[0, { sit: true, R: [70, -250], L: [56, -262] }], [.5, { sit: true, R: [72, -262], L: [54, -250] }], [1, { sit: true, R: [70, -250], L: [56, -262] }]] },
   stretch: { th: 'บิดขี้เกียจ', dur: 2.4, keys: [[0, {}], [.4, { R: [20, -460], L: [4, -456], dy: -6 }], [.7, { R: [20, -460], L: [4, -456], dy: -6, nod: -3 }], [1, {}]] },
   drink: { th: 'ยกแก้วดื่ม', dur: 2.4, keys: [[0, { R: [36, -230], prop: ['R', 'cup'] }], [.4, { R: [22, -346], nod: -4, prop: ['R', 'cup'] }], [.7, { R: [22, -346], nod: -6, prop: ['R', 'cup'] }], [1, { R: [36, -230], prop: ['R', 'cup'] }]] },
+  // ---- added for the "แสนล้าน" story
+  countMoney: { th: 'นับเงิน', dur: 2.6, keys: [[0, { R: [40, -262], L: [20, -258], prop: ['L', 'note'] }], ...osc(.05, .9, 8, { R: [44, -266], L: [20, -258], nod: 6, prop: ['L', 'note'] }, { R: [30, -258], L: [20, -258], nod: 6, prop: ['L', 'note'] }), [1, { R: [40, -262], L: [20, -258], prop: ['L', 'note'] }]] },
+  headInHands: { th: 'กุมหัวท้อ', dur: 3, keys: [[0, {}], [.3, { R: [16, -360], L: [-4, -356], nod: 10, lean: .1, expr: 'sad' }], [.8, { R: [16, -360], L: [-4, -356], nod: 10, lean: .1, expr: 'sad' }], [1, { expr: 'sad' }]] },
+  fistPump: { th: 'กำหมัดสู้', dur: 1.8, keys: [[0, {}], [.25, { R: [52, -300], expr: 'smile' }], [.4, { R: [48, -330], dy: -4, expr: 'smile' }], [.75, { R: [48, -330], expr: 'smile' }], [1, { expr: 'smile' }]] },
+  handshake: { th: 'จับมือตกลง', dur: 2.4, keys: [[0, {}], [.3, { R: [104, -244], lean: .04 }], ...osc(.3, .8, 4, { R: [104, -248], lean: .04, expr: 'smile' }, { R: [104, -238], lean: .04, expr: 'smile' }), [1, {}]] },
+  readBook: { th: 'อ่านหนังสือ', dur: 3, keys: [[0, {}], [.25, { R: [46, -282], L: [24, -278], nod: 6, prop: ['R', 'book'] }], [.85, { R: [46, -282], L: [24, -278], nod: 7, prop: ['R', 'book'] }], [1, { prop: ['R', 'book'] }]] },
+  carrySack: { th: 'แบกกระสอบ', dur: 3, keys: [[0, {}], [.3, { R: [20, -400], L: [4, -396], dy: 4, lean: .06, prop: ['R', 'sack'] }], [1, { R: [20, -400], L: [4, -396], dy: 4, lean: .06, prop: ['R', 'sack'] }]] },
+  dustOff: { th: 'ลุกปัดฝุ่น', dur: 2.6, keys: [[0, { crouch: .8, R: [60, -120], lean: .1 }], [.45, { crouch: .2, R: [40, -200] }], ...osc(.45, .9, 4, { R: [34, -180], L: [8, -184] }, { R: [40, -210], L: [14, -214] }), [1, {}]] },
+  scrolledPhone: { th: 'อ่านข้อความหลอก', dur: 2.6, keys: [[0, {}], [.25, { R: [36, -290], nod: 6, prop: ['R', 'phone'], expr: 'smile' }], [.8, { R: [36, -290], nod: 6, prop: ['R', 'phone'], expr: 'smile' }], [1, {}]] },
   scratchHead: { th: 'เกาหัว', dur: 2, keys: [[0, {}], [.3, { R: [10, -410], expr: 'frown' }], ...osc(.3, .75, 6, { R: [6, -412], expr: 'frown' }, { R: [14, -408], expr: 'frown' }), [1, {}]] },
 };
 export const ACTION_NAMES = Object.keys(ACTIONS);

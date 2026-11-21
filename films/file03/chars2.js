@@ -43,6 +43,10 @@ function drawProp(g, [k, type, rot = 0, on = 0], h) {
   if (type === 'key') { el(g, 4, 0, 5, 5, '#d8b24a'); poly(g, [[8, -1.5], [22, -1.5], [22, 1.5], [8, 1.5]], '#d8b24a'); }
   if (type === 'paper') { poly(g, [[-4, -16], [30, -18], [32, 18], [-2, 20]], '#efe8d4'); g.fillStyle = 'rgba(60,50,40,.4)'; for (let i = 0; i < 4; i++) g.fillRect(2, -10 + i * 7, 22, 2); }
   if (type === 'pen') { poly(g, [[0, -2], [26, -2], [30, 0], [26, 2], [0, 2]], '#2a4a8a'); }
+  if (type === 'book') { poly(g, [[-4, -18], [30, -20], [32, 16], [-2, 18]], '#2a5a8a'); poly(g, [[0, -14], [28, -16], [29, 12], [2, 14]], '#efe8d4'); }
+  if (type === 'coin') { el(g, 6, 0, 6, 6, '#e0b040'); el(g, 6, 0, 3.5, 3.5, '#c89a30'); }
+  if (type === 'note') { poly(g, [[-2, -10], [34, -12], [34, 8], [-2, 10]], '#7aa86a'); g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(4, -4, 24, 3); }
+  if (type === 'sack') { poly(g, [[-30, -60], [30, -66], [40, 20], [-36, 24]], '#c8b080'); poly(g, [[-30, -60], [30, -66], [24, -50], [-24, -46]], '#a89060'); }
   if (type === 'cup') { poly(g, [[-2, -18], [18, -18], [16, 6], [0, 6]], '#e8e2d4'); poly(g, [[-2, -18], [18, -18], [18, -14], [-2, -14]], '#3a2a1e'); }
   g.restore();
 }
@@ -65,12 +69,15 @@ function standing(g, C, P) {
   g.save(); g.scale(.86, 1);   // a slimmer body, as in the references (the head is drawn at full width)
   // legs: long and thin, a shadow plane down the back edge
   const cr = P.crouch || 0, drop = 104 * cr;   // a squat: the hips come down, the knees go forward
+  const ls = C.legScale || 1;   // a child has shorter legs
+  if (ls !== 1) { g.save(); g.scale(1, ls); }
   if (!C.longSkirt && !P.noLegs) for (const [sx, c, fx] of [[-9, dk(C.pants, .12), -7], [9, C.pants, 2]]) {   // weight on the near leg; the far foot eased out
     if (cr > .02) { const hip = [sx, -218 + drop], knee = [sx + 70 * cr, -112 + drop * .2], ank = [sx + fx, -22]; path(g, [hip, knee, ank], 15, c); }
     else { poly(g, [[sx - 8, -226], [sx + 8, -226], [sx + 7 + fx, -20], [sx - 6 + fx, -20]], c);
     poly(g, [[sx - 8, -226], [sx - 3, -226], [sx - 2 + fx, -20], [sx - 6 + fx, -20]], dk(c, .25)); }
     poly(g, [[sx - 7 + fx, -24], [sx + 8 + fx, -24], [sx + 15 + fx, -8], [sx + 15 + fx, 0], [sx - 8 + fx, 0]], C.shoes);
   }
+  if (ls !== 1) { g.restore(); g.translate(0, 226 * (1 - ls)); }
   if (drop) g.translate(0, drop);
   const lean = P.lean || 0; if (lean) { g.translate(0, -222); g.rotate(lean); g.translate(0, 222); }   // bend at the hips
   C.skirt && poly(g, [[-27, -236], [27, -236], [34, C.skirtLen ?? -130], [-32, C.skirtLen ?? -130]], C.skirt);
@@ -96,6 +103,7 @@ function standing(g, C, P) {
   else if (!pose.hide && !(IP && IP.hide && idleK > .7)) for (const k of ['L', 'R']) hand(g, hands[k][0], hands[k][1], k === 'L' ? dk(skin, .15) : skin);
   if (P.hold === 'box') carryBox(g, 22, -258); else if (P.hold) C.props && C.props(g, P, hands, dk, lt);
   g.restore();
+  if (ls !== 1) g.translate(0, 226 * (1 - ls));
   if (drop) g.translate(0, drop); if (lean) { g.translate(0, -222); g.rotate(lean); g.translate(0, 222); }   // the head follows the squat and the bend
   if (P.prop) drawProp(g, P.prop, hands[P.prop[0]]);
   head(g, C, P, 'q');
@@ -169,11 +177,13 @@ function frontBack(g, C, P, back) {
   const wph = P.walk;
   if (wph != null) g.translate(0, -Math.abs(Math.cos(wph)) * 4);
   g.save(); g.scale(.86, 1);   // slimmer body
+  const lsF = C.legScale || 1; if (lsF !== 1) { g.save(); g.scale(1, lsF); }
   if (!C.longSkirt) for (const sx of [-10, 10]) {
     const lift = wph == null ? 0 : Math.max(0, Math.sin(wph) * (sx < 0 ? 1 : -1)) * 26;   // the lifted foot rises and shortens (it swings toward/away from us)
     poly(g, [[sx - 8, -226], [sx + 8, -226], [sx + 7, -20 - lift], [sx - 7, -20 - lift]], sx < 0 ? dk(C.pants, .14) : C.pants);
     poly(g, [[sx - 9, -24 - lift], [sx + 9, -24 - lift], [sx + 10, -lift], [sx - 10, -lift]], C.shoes);
   }
+  if (lsF !== 1) { g.restore(); g.translate(0, 226 * (1 - lsF)); }
   C.skirt && poly(g, [[-27, -236], [27, -236], [34, C.skirtLen ?? -130], [-34, C.skirtLen ?? -130]], C.skirt);
   const A = P.hold === 'box' ? 'chest' : (P.arms || (P.hold ? C.arms : null) || 'down');
   const FS = { hip: { L: [-36, -200], R: [30, -228], eR: [56, -262] }, hips: { L: [-30, -228], R: [30, -228], eL: [-56, -262], eR: [56, -262] },
@@ -187,9 +197,10 @@ function frontBack(g, C, P, back) {
   if (back) { torso(); arm(-1); arm(1); }
   else { torso(); C.outfit && C.outfit(g, P, dk, lt); arm(-1); arm(1); if (A === 'cross' && !P.hands) { const eL = FS.eL, eR = FS.eR; path(g, [eL, hands.L], 13, dk(C.sleeve || C.top, .15)); path(g, [eR, hands.R], 13, C.sleeve || C.top); } if (P.hold === 'box') carryBox(g, 0, -258); else if (P.hold) C.props && C.props(g, P, hands, dk, lt); }
   g.restore();
+  if (lsF !== 1) g.translate(0, 226 * (1 - lsF));
   const hx = 0, hy = -366;
   poly(g, [[-5, -352], [5, -352], [6, -320], [-5, -320]], dk(skin, .12));   // a longer, thinner neck
-  g.translate(0, -8); g.translate(0, -338); g.scale(1.1, 1.1); g.translate(0, 338);   // a slightly larger head (person() restores)
+  g.translate(0, -8); g.translate(0, -338); g.scale(1.1 * (C.headScale || 1), 1.1 * (C.headScale || 1)); g.translate(0, 338);   // a slightly larger head (person() restores)
   if (back) {
     C.hairBack && C.hairBack(g, 'back', dk);
     for (const sd of [-1, 1]) el(g, sd * 23, hy + 2, 4, 6, dk(skin, .1));
@@ -225,7 +236,7 @@ function frontBack(g, C, P, back) {
 }
 
 // ---------- head: an egg, two-tone, small eyes ----------
-function head(g, C, P, view) { const sk = C.skin || SK; poly(g, [[-5, -352], [5, -352], [6, -320], [-5, -320]], dk(sk, .12)); g.save(); g.translate(0, (P.nod || 0) - 8); g.translate(0, -338); g.scale(1.1, 1.1); g.translate(0, 338); headInner(g, C, P, view); g.restore(); }
+function head(g, C, P, view) { const sk = C.skin || SK; poly(g, [[-5, -352], [5, -352], [6, -320], [-5, -320]], dk(sk, .12)); g.save(); g.translate(0, (P.nod || 0) - 8); g.translate(0, -338); g.scale(1.1 * (C.headScale || 1), 1.1 * (C.headScale || 1)); g.translate(0, 338); headInner(g, C, P, view); g.restore(); }
 function headInner(g, C, P, view) {
   const skin = C.skin || SK, hx = view === 'side' ? 2 : 2, hy = -366;
   poly(g, [[-6, -342], [6, -342], [7, -320], [-6, -320]], dk(skin, .12));   // neck
