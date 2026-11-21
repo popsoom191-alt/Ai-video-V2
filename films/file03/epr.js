@@ -5,10 +5,24 @@
 import ep1 from './ep1.js';
 import ep2 from './ep2.js';
 export default (api) => {
-  const { g, W, H, TH, person, extra, P, K, camK, mover, cam, pov, black, vhs, frozenTV, darkTorch, seg, ease, lerp, hash,
-    shop, shopDoor, building2026, phoneHeld, phoneScreen, shopFront, carRide, market2, stool, towel, oatShop, workOrder, vcr,
+  const { g, W, H, TH, person, extra, P, K, camK, mover, cam, pov, black, vhs, frozenTV, darkTorch, seg, ease, lerp, hash, dof, handsPhone, card, badge,
+    shop, shopDoor, building2026, shopFront, carRide, market2, stool, towel, oatShop, workOrder, vcr,
     gate, lobby, stairsUp, stairPos, lab, labDoor, corridor, paper } = api;
   const A = ep1(api), B = ep2(api);
+  // the phone, as in the references: big hands, the room soft behind; screens are portrait (1080 × 1920)
+  const wrap = (txt, w) => { const out = []; let line = ''; for (const ch of [...txt]) { if (g.measureText(line + ch).width > w && line) { out.push(line); line = ''; } line += ch; } if (line) out.push(line); return out; };
+  const phoneScreen = (_, L) => () => {
+    const gr = g.createLinearGradient(0, 0, 0, 1920); gr.addColorStop(0, '#f4f4f8'); gr.addColorStop(1, '#e4e6ee'); g.fillStyle = gr; g.fillRect(0, 0, 1080, 1920);
+    g.fillStyle = '#ffffff'; g.fillRect(0, 0, 1080, 300); g.fillStyle = '#d8d8de'; g.fillRect(0, 298, 1080, 3);
+    g.fillStyle = '#c8443a'; g.beginPath(); g.arc(150, 200, 60, 0, 7); g.fill(); g.fillStyle = '#fff'; g.font = `700 64px ${TH}`; g.textAlign = 'center'; g.fillText([...L.title][0], 150, 222); g.textAlign = 'left';
+    g.fillStyle = '#2a2a30'; g.font = `700 70px ${TH}`; g.fillText(L.title, 240, 226);
+    let y = 400; g.font = `600 58px ${TH}`;
+    for (const r of L.rows) { const ls = wrap(r.text, 820), h = ls.length * 78 + 50, w = Math.max(...ls.map(l => g.measureText(l).width)) + 70, x = r.me ? 1080 - 60 - w : 60;
+      g.fillStyle = r.me ? '#3a8a68' : '#ffffff'; g.beginPath(); g.roundRect(x, y, w, h, 44); g.fill(); g.fillStyle = r.me ? '#fff' : '#2a2a30'; ls.forEach((l, i) => g.fillText(l, x + 35, y + 80 + i * 78)); y += h + 40; }
+  };
+  const photo = (draw) => () => { g.fillStyle = '#0c0c0e'; g.fillRect(0, 0, 1080, 1920); g.save(); g.translate(0, 660); g.scale(1080 / 1920, 1080 / 1920); draw(); g.restore(); };
+  const phoneHeld = (_, screen, t, night = true) => { cam(960, 540, 1.3, () => shop(g, t, night, {})); dof(20, night ? .3 : .1); handsPhone(g, t, screen, { tap: Math.min(1, (t % 6) / 3) }); };
+
   const tapeBox = (x, y, s, label, wet = 0) => { g.save(); g.translate(x, y); g.scale(s, s); g.fillStyle = '#1a1a1e'; g.fillRect(-45, -26, 90, 52); g.fillStyle = '#f2ecd8'; g.fillRect(-35, -16, 70, 18); g.fillStyle = label === '01' ? '#c8322c' : '#2a2a2a'; g.font = '700 16px monospace'; g.fillText(label, -12, -2); if (wet > 0) { g.fillStyle = `rgba(150,190,220,${.55 * wet})`; g.fillRect(-35, -16, 70, 18); } g.restore(); };
   const box = () => { g.fillStyle = '#8a6a46'; g.fillRect(860, 640, 180, 70); g.fillStyle = '#6a4e32'; g.fillRect(860, 640, 180, 12); };
   const tapesInBox = (taken) => { for (let k = 0; k < 4; k++) { if (taken === k) continue; g.fillStyle = '#1a1a1e'; g.fillRect(878 + k * 36, 618, 26, 30); } };
@@ -26,7 +40,7 @@ export default (api) => {
     g.font = `400 40px ${TH}`; g.fillStyle = `rgba(220,220,220,${seg(lt, 2, 3)})`; g.fillText('ตอนหน้า · ม้วนที่ ๒  /  Next: Tape Two', W / 2, 680); g.textAlign = 'left';
     black(1 - seg(lt, 0, .8)); black(seg(lt, 7, 8)); } };
 
-  return [
+  const S = [
     A[0],
 
     // 1. the shop by day, one shot: the knock, the door, the box carried in and set down, the talk, the phone, tape three, goodbye
@@ -41,7 +55,7 @@ export default (api) => {
               ['b2', 'beer', 53.4, 'งั้นผมจะดูคืนนี้ คนเดียว', "Then I'll watch it tonight. Alone."],
               ['x13', 'nid', 56.2, 'ระวังตัวด้วยนะ', 'Be careful.']],
       draw(lt, t) {
-        if (lt > 25 && lt < 37) { if (lt < 29) phoneHeld(g, () => building2026(g, t), t); else cam(1280, 760, lerp(1.1, 1.6, ease(seg(lt, 29, 37))), () => building2026(g, t)); return; }
+        if (lt > 25 && lt < 37) { if (lt < 29) phoneHeld(g, photo(() => building2026(g, t)), t, false); else cam(1280, 760, lerp(1.1, 1.6, ease(seg(lt, 29, 37))), () => building2026(g, t)); return; }
         camK(lt, [[0, [960, 540, 1.02]], [6, [1300, 560, 1.1]], [15, [1300, 560, 1.1]], [18, [960, 560, 1.06]], [40.4, [960, 560, 1.06]], [41.4, [760, 600, 1.35]], [46.6, [760, 600, 1.35]], [47.6, [960, 560, 1.06]], [64, [1100, 560, 1.06]]], () => {
           shop(g, t, false, { clock: 14 + lt / 60 }); rays();
           shopDoor(g, Math.max(ease(seg(lt, 6.4, 7.2)) * (1 - ease(seg(lt, 15.6, 16.4))), ease(seg(lt, 59.4, 60.2)) * (1 - ease(seg(lt, 62.2, 63)))));
@@ -195,7 +209,7 @@ export default (api) => {
     { d: 26, ev: [[6.4, 'type'], [9.8, 'sent']],
       draw(lt, t) {
         if (lt < 4.6) { shop(g, t, true, { clock: 3.0 }); towelOn(1); person(g, 'beer', 880, 990, 580, P('beer', t, { look: .5, arms: lt > 1 ? 'phone' : 'down' })); }
-        else if (lt < 12) phoneHeld(g, () => phoneScreen(g, { title: 'คุณนิด', rows: (lt > 9.8 ? [{ text: 'พรุ่งนี้เช้ามาด่วน ผมเจอม้วนที่หนึ่ง', me: true }] : []).concat(lt > 6.4 && lt < 9.8 ? [{ text: 'พรุ่งนี้เช้ามาด่วน ผมเจอม้วนที่หนึ่ง'.slice(0, Math.floor((lt - 6.4) * 10)) }] : []) }, t), t);
+        else if (lt < 12) phoneHeld(g, phoneScreen(g, { title: 'คุณนิด', rows: (lt > 9.8 ? [{ text: 'พรุ่งนี้เช้ามาด่วน ผมเจอม้วนที่หนึ่ง', me: true }] : []).concat(lt > 6.4 && lt < 9.8 ? [{ text: 'พรุ่งนี้เช้ามาด่วน ผมเจอม้วนที่หนึ่ง'.slice(0, Math.floor((lt - 6.4) * 10)) }] : []) }, t), t);
         else {
           const k = seg(lt, 12, 24), sleep = ease(seg(lt, 20, 22));
           shop(g, t, true, { clock: lerp(3.0, 4.1, k), lamp: 1 - .3 * k }); towelOn(1);
@@ -215,7 +229,7 @@ export default (api) => {
               ...A[16].lines.filter(l => l[0] !== 'b9').map((l, i) => [l[0], l[1], [52.4, 58.6][i], l[3], l[4]]),
               [B[2].lines[3][0], 'nid', 64.4, B[2].lines[3][3], B[2].lines[3][4]]],
       draw(lt, t) {
-        if (lt > 9 && lt < 13) { phoneHeld(g, () => phoneScreen(g, { title: '08:12', rows: [{ text: 'สายที่ไม่ได้รับ · คุณนิด (5)' }, { text: 'คุณนิด: เบียร์ รับสายหน่อย' }] }, t), t); return; }
+        if (lt > 9 && lt < 13) { phoneHeld(g, phoneScreen(g, { title: 'สายที่ไม่ได้รับ', rows: [{ text: 'สายที่ไม่ได้รับ · คุณนิด (5)' }, { text: 'คุณนิด: เบียร์ รับสายหน่อย' }] }, t), t, false); return; }
         if (lt > 50.8 && lt < 63.4) { cam(960, 540, 1 + (lt - 50.8) * .01, () => workOrder(g, t)); fadeX(lt, 50.2, 51.4); fadeX(lt, 62.8, 64); return; }
         if (lt > 72.4) { vcr(g, t, ease(seg(lt, 72.4, 75)), '01  97'); fadeX(lt, 71.8, 73); black(seg(lt, 81.3, 82)); return; }
         const [x, y, z] = K(lt, [[0, [960, 540, 1.02]], [13, [960, 540, 1.02]], [16, [1300, 560, 1.1]], [26, [1300, 560, 1.1]], [29, [960, 560, 1.06]], [44, [960, 560, 1.06]], [46, [800, 640, 1.5]], [50.8, [760, 680, 2.4]], [64, [960, 560, 1.06]], [72.4, [370, 680, 3.2]]]);
@@ -316,4 +330,12 @@ export default (api) => {
 
     endCard,
   ];
+  // light and atmosphere per scene (main.js applies them after each draw): tone, vignette, atmosphere layers
+  const day = { tone: 'warm', atmo: [['beams', { a: .2 }], ['dust', { a: .5 }]] }, night = { tone: 'night', v: .55, atmo: [['glow', { x: 900, y: 600, r: 520, col: 'rgba(255,200,120,.12)' }]] };
+  const LOOK = { 0: false, 1: day, 2: night, 3: { atmo: [['haze', { col: 'rgba(40,60,90,.3)' }]] }, 4: { atmo: [['flicker']] }, 5: { atmo: [['dust', { a: .3, n: 40 }]] }, 6: night,
+    7: { atmo: [['dust', { a: .3 }], ['flicker']] }, 13: night, 14: { tone: 'tv', v: .6 }, 15: day, 19: { tone: 'day', atmo: [['beams', { a: .14 }]] }, 20: { tone: 'day', v: .4 }, 21: { tone: 'day', v: .4 },
+    22: { tone: 'warm', v: .42, atmo: [['beams', { a: .12 }], ['haze', { col: 'rgba(255,220,170,.16)' }]] }, 23: { tone: 'warm', v: .5, atmo: [['dust', { a: .35 }]] }, 24: { tone: 'warm', v: .5 }, 25: { tone: 'tv', v: .62 }, 26: false };
+  S.forEach((sc, i) => { if (i in LOOK) sc.look = LOOK[i]; });
+  return S;
+
 };

@@ -128,6 +128,7 @@ function render(t) {
   g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H);
   let s = SCENES[0]; for (const x of SCENES) if (t >= x.t0) s = x;
   s.draw(t - s.t0, t);
+  if (s.look !== false) { const L = s.look || {}; (L.atmo || []).forEach(([k, o]) => atmo(k, t, o || {})); if (!s.tape) grade(L.tone || 'night', L.v ?? .45); }
   if (s.tape) { vhs(t, { time: s.osd, date: s.date, tear: t - s.t0 > s.d - 4.6 && s.ev?.some(e => e[1] === 'tear') }); black(1 - seg(t - s.t0, 0, .3)); }
   subs(t);
 }

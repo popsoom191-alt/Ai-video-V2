@@ -116,8 +116,12 @@ export function exterior(g, t) {
     rect(g, x, y, 60, 70, dark ? '#0a0a10' : lit ? '#d8c890' : '#1e2230');
     if (dark && k === 5 && Math.sin(t * 3) > .6) rect(g, x, y, 60, 70, '#4a5a6a');
   }
+  for (let f = 0; f < 6; f++) { rect(g, 560, 196 + f * 118 + 78, 800, 8, '#2e2e3a'); for (let k = 0; k < 3; k++) if (hash(f * 5 + k) > .4) { rect(g, 610 + k * 280 + hash(f + k) * 60, 196 + f * 118 + 50, 50, 30, '#4a4a56'); for (let q = 0; q < 4; q++) rect(g, 614 + k * 280 + hash(f + k) * 60 + q * 11, 196 + f * 118 + 54, 6, 22, '#2e2e38'); } }   // ledges and old AC units
+  g.strokeStyle = '#2a3a2a'; g.lineWidth = 5; for (let i = 0; i < 9; i++) { g.beginPath(); g.moveTo(570 + i * 90, 920); g.bezierCurveTo(560 + i * 90 + hash(i) * 60, 760, 600 + i * 90, 640 - hash(i + 1) * 200, 580 + i * 90 + hash(i + 2) * 40, 520 - hash(i + 3) * 260); g.stroke(); }   // creepers up the wall
+  for (const [x, w, h] of [[0, 300, 420], [180, 260, 300], [1420, 240, 360], [1640, 300, 460]]) { rect(g, x, 920 - h, w, h, '#14141e'); for (let i = 0; i < 6; i++) if (hash(x + i) > .6) rect(g, x + 30 + (i % 3) * 70, 940 - h + Math.floor(i / 3) * 80, 30, 40, '#3a3428'); }   // neighbours
+  for (const x of [470, 1450]) { rect(g, x - 8, 700, 16, 220, '#14100c'); el(g, x, 650, 110, 90, '#0e1810'); el(g, x - 60, 690, 70, 60, '#101c12'); el(g, x + 60, 680, 80, 60, '#0c160e'); }   // trees
   g.fillStyle = '#e8e4d0'; g.font = `700 34px ${TH}`; g.textAlign = 'center'; g.fillText('วิชัยแล็บ', 960, 190); g.textAlign = 'left';
-  rect(g, 0, 920, W, 160, '#1a1a22');
+  rect(g, 0, 920, W, 160, '#1a1a22'); g.fillStyle = 'rgba(255,220,150,.08)'; g.fillRect(250, 930, 110, 150); for (let k = 0; k < 8; k++) rect(g, k * 260 + 40, 1010, 140, 8, '#3a3a40');   // the lamp in the wet road, lane marks
   // gate and fence
   for (let k = 0; k < 40; k++) rect(g, k * 50, 820, 8, 110, '#2a2a30'); rect(g, 0, 830, W, 8, '#2a2a30'); rect(g, 0, 880, W, 8, '#2a2a30');
   rect(g, 860, 800, 200, 130, 'rgba(0,0,0,0)');
@@ -196,8 +200,11 @@ export function lift(g, t, open = 0, L = 1) {
   rect(g, 520, 120, 880, 800, shade('#7a7e80', L));
   rect(g, 560, 160, 800, 760, shade('#2a2e2a', L));   // inside the car
   const gr = g.createLinearGradient(0, 160, 0, 920); gr.addColorStop(0, shade('#d8dcc8', L)); gr.addColorStop(1, shade('#8a8e80', L)); g.fillStyle = gr; g.fillRect(580, 180, 760, 740);
+  rect(g, 600, 600, 720, 10, shade('#9a9e98', L)); rect(g, 1240, 360, 60, 200, shade('#5a5e5a', L)); for (let k = 0; k < 8; k++) el(g, 1270, 380 + k * 22, 7, 7, shade(k === 4 ? '#e8463c' : '#c8c8c0', L));   // a handrail and the button panel
+  rect(g, 600, 900, 720, 20, shade('#3a3e3a', L)); for (let i = 0; i < 8; i++) { g.fillStyle = `rgba(0,0,0,${.08 * L})`; g.fillRect(620 + hash(i) * 660, 300 + hash(i + 1) * 500, 30 + hash(i + 2) * 60, 3); }
   const d = open * 400;
-  rect(g, 560 - d, 160, 400, 760, shade('#a8acae', L)); rect(g, 960 + d, 160, 400, 760, shade('#9ca0a2', L));
+  for (const [x, w, c] of [[560 - d, 400, '#a8acae'], [960 + d, 400, '#9ca0a2']]) { const sg = g.createLinearGradient(x, 0, x + w, 0); sg.addColorStop(0, shade(c, L)); sg.addColorStop(.5, shade('#c8ccce', L)); sg.addColorStop(1, shade(c, L)); g.fillStyle = sg; g.fillRect(x, 160, w, 760); for (let i = 0; i < 5; i++) { g.fillStyle = `rgba(0,0,0,${.07 * L})`; g.fillRect(x + 30 + hash(x + i) * 300, 400 + hash(i + x) * 400, 50, 2); } }
+  { const x = 960 + d + 60; rect(g, x, 420, 80, 110, shade('#e8e2c8', L)); g.fillStyle = shade('#c8322c', L); g.font = `700 18px ${TH}`; g.fillText('ห้ามใช้', x + 8, 450); g.fillText('ชั้น ๔', x + 12, 476); }   // a taped notice on the door
   rr(g, 900, 60, 120, 44, 6, '#1a1a1e'); g.fillStyle = '#e8463c'; g.font = '700 30px monospace'; g.textAlign = 'center'; g.fillText('4', 960, 93); g.textAlign = 'left';
 }
 export function paper(g, t) {
@@ -348,6 +355,11 @@ export function building2026(g, t) {
   for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(60,80,40,${.3 + .4 * hash(i)})`; g.beginPath(); g.ellipse(560 + hash(i + 3) * 800, 700 + hash(i + 5) * 220, 20 + hash(i) * 30, 40, 0, 0, 7); g.fill(); }   // weeds and vines
   rect(g, 0, 920, W, 160, '#5a5a56'); for (let k = 0; k < 40; k++) rect(g, k * 50, 820, 8, 110, '#3a3a40'); rect(g, 0, 830, W, 8, '#3a3a40');
   g.strokeStyle = '#8a8a90'; g.lineWidth = 8; g.beginPath(); g.arc(960, 870, 30, 0, 7); g.stroke();
+  for (const [x, y, w] of [[300, 160, 180], [460, 130, 120], [1500, 110, 200], [1680, 150, 140]]) el(g, x, y, w, w * .28, 'rgba(255,255,255,.55)');
+  for (const [x, w, h, c] of [[0, 420, 520, '#9a9488'], [260, 260, 380, '#8a867c'], [1420, 260, 440, '#949088'], [1640, 300, 560, '#8a8478']]) { rect(g, x, 920 - h, w, h, c); for (let i = 0; i < 6; i++) rect(g, x + 30 + (i % 3) * 76, 960 - h + Math.floor(i / 3) * 110, 40, 60, '#5a646a'); }
+  rect(g, 180, 200, 20, 720, '#7a7a74'); rect(g, 140, 260, 100, 10, '#5a5a54'); g.strokeStyle = '#2a2a2a'; g.lineWidth = 2; for (let w = 0; w < 3; w++) { g.beginPath(); g.moveTo(190, 265 + w * 6); g.quadraticCurveTo(900, 330 + w * 20, W, 240 + w * 12); g.stroke(); }
+  g.fillStyle = 'rgba(60,40,90,.6)'; g.font = `700 50px ${TH}`; g.save(); g.translate(640, 880); g.rotate(-.05); g.fillText('ผีอยู่ชั้น ๔', 0, 0); g.restore();
+  g.fillStyle = 'rgba(90,110,130,.35)'; g.beginPath(); g.ellipse(700, 1010, 180, 22, 0, 0, 7); g.fill(); for (let k = 0; k < 20; k++) rect(g, k * 100, 1040, 4, 40, 'rgba(0,0,0,.12)');
   rect(g, 1120, 700, 380, 200, '#f2e8c8'); rect(g, 1120, 700, 380, 50, '#c8322c'); g.fillStyle = '#fff'; g.font = `700 36px ${TH}`; g.fillText('เตรียมรื้อถอน', 1190, 738);
   g.fillStyle = '#2a2622'; g.font = `600 30px ${TH}`; g.fillText('อาคารวิชัยแล็บ', 1150, 800); g.fillText('เริ่ม ๑ ธ.ค. ๒๕๖๙', 1150, 850);
 }
