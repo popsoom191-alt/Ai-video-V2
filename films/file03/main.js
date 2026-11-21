@@ -10,7 +10,7 @@ const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x)), seg = (t, a, b) 
 const hash = n => { n = Math.sin(n * 127.1 + 311.7) * 43758.5453; return n - Math.floor(n); };
 const fetchJ = async p => { try { const r = await fetch(p); return r.ok ? await r.json() : {}; } catch { return {}; } };
 const EPN = new URLSearchParams(location.search).get('ep') || '1';
-const DURS = await fetchJ(['1', '12', 'r', 'v2'].includes(EPN) ? 'voices/dur.json' : `voices_ep${EPN}/dur.json`);   // ep12 = the merged episode, reuses episode 1's voices
+const DURS = await fetchJ(['1', '12', 'r', 'v2', 'v3'].includes(EPN) ? 'voices/dur.json' : `voices_ep${EPN}/dur.json`);   // ep12 = the merged episode, reuses episode 1's voices
 let TEXT = {};
 const dur = id => DURS[id] || Math.max(1.6, (TEXT[id] || '').length * .085);
 
@@ -57,7 +57,8 @@ function subs(t) {
   g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = a; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
   const y = H - 150;
   const txt = (s, font, col, yy, lw) => { g.font = font; g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 14; g.shadowOffsetY = 3; g.strokeStyle = 'rgba(10,10,14,.92)'; g.lineWidth = lw; g.strokeText(s, W / 2, yy); g.shadowColor = 'transparent'; g.fillStyle = col; g.fillText(s, W / 2, yy); };
-  txt(l.th, `700 54px ${TH}`, '#ffffff', y, 9);
+  if (l.key) { g.font = `700 54px ${TH}`; const w = g.measureText(l.th).width + 70; g.fillStyle = 'rgba(14,12,10,.78)'; g.beginPath(); g.roundRect(W / 2 - w / 2, y - 40, w, 80, 8); g.fill(); }
+  txt(l.th, `700 54px ${TH}`, l.key ? '#f2c14e' : '#ffffff', y, 9);
   txt(l.en, `500 30px ${TH}`, '#e2e2e2', y + 52, 6);
   g.restore();
 }
@@ -102,7 +103,19 @@ function atmo(kind, t, o = {}) {
   if (kind === 'haze') { const gr = g.createLinearGradient(0, H * (o.top ?? .45), 0, H); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, o.col || 'rgba(180,190,200,.25)'); g.fillStyle = gr; g.fillRect(0, 0, W, H); }
   if (kind === 'glow') { g.globalCompositeOperation = 'screen'; const r = o.r || 420, gr = g.createRadialGradient(o.x, o.y, 0, o.x, o.y, r); gr.addColorStop(0, o.col || 'rgba(255,200,130,.45)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(o.x - r, o.y - r, r * 2, r * 2); }
   if (kind === 'flicker') { const f = Math.floor(t * 12), off = hash(f) > .9 || (hash(f * 3) > .97); if (off) { g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, 0, W, H); } }
+  if (kind === 'fog') { for (let L = 0; L < 3; L++) for (let i = 0; i < 7; i++) { const x = ((hash(i + L * 10) * W * 1.6 + t * (8 + L * 6)) % (W * 1.6)) - W * .3, y = H * (o.y ?? .55) + (hash(i * 3 + L) - .5) * H * .5, r = 260 + hash(i + 5) * 260 + L * 80; const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(${o.col || '220,226,230'},${(o.a ?? .14) * (1 - L * .25)})`); gr.addColorStop(1, `rgba(${o.col || '220,226,230'},0)`); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); } }
   if (kind === 'rain') { g.strokeStyle = `rgba(200,215,230,${o.a ?? .25})`; g.lineWidth = 1.6; for (let i = 0; i < (o.n || 260); i++) { const x = (hash(i) * W * 1.2 + t * 260) % (W * 1.2) - 100, y = (hash(i + 4) * H + t * 1400 * (.7 + .3 * hash(i + 1))) % H; g.beginPath(); g.moveTo(x, y); g.lineTo(x - 10, y + 34); g.stroke(); } }
+  g.restore();
+}
+// the HUD (top left, as in the references): a translucent dark pill with fields separated by thin bars; the clock runs
+function hud(lt, o) {
+  const k = Math.min(seg(lt, .3, .9), 1); if (k <= 0) return;
+  const mins = (o.h ?? 0) * 60 + (o.m ?? 0) + (o.speed ?? 1) * lt / 60, hh = Math.floor(mins / 60) % 24, mm = Math.floor(mins % 60);
+  const fields = [`${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`, ...(o.fields || [])];
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = k; g.font = `600 30px ${TH}`;
+  const ws = fields.map((f, i) => g.measureText(f).width + (i ? 44 : 30)), w = ws.reduce((a, b) => a + b, 0) + 30;
+  g.fillStyle = 'rgba(20,22,28,.62)'; g.beginPath(); g.roundRect(60, 54, w, 62, 14); g.fill(); g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 2; g.stroke();
+  let x = 82; fields.forEach((f, i) => { if (i) { g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(x - 20, 70, 2, 30); } g.font = `${i ? 500 : 700} 30px ${TH}`; g.fillStyle = i && o.warn === i ? '#f2a24e' : '#f2f2ec'; g.fillText(f, x, 96); x += ws[i]; });
   g.restore();
 }
 // a small badge (top left): time and place
@@ -121,19 +134,30 @@ const Q = new URLSearchParams(location.search), EP = Q.get('ep') || '1';
 const BG = await import('./bg.js');
 const { extra } = await import('./chars2.js');
 const SHOTS = await import('./shots.js');
-const SCENES = (await import(`./ep${EP}.js`)).default({ g, W, H, TH, person, extra, dof, fgBlur, grade, card, badge, atmo, ...SHOTS, P, K, camK, mover, cam, pov, walk, black, vhs, darkTorch, frozenTV, seg, ease, lerp, hash, clamp, ...BG });
+const { act } = await import('./actions.js');
+let ACTS = [];   // [{who, name, t, dur, opts}] from every scene's acts: [[who, name, at, dur?, opts?]]
+const personA = (gg, id, x, y, Hh, pose = {}) => {
+  const tt = pose.t; let p = pose;
+  if (tt != null && pose.walk == null) { const a = ACTS.find(a => a.who === id && tt >= a.t && tt <= a.t + a.dur); if (a) { const base = { ...pose }; delete base.arms; delete base.hands; p = act(a.name, (tt - a.t) / a.dur, base); if (a.opts && a.opts.noProp) delete p.prop; if (pose.flip != null) p.flip = pose.flip; } }
+  return person(gg, id, x, y, Hh, p);
+};
+const SCENES = (await import(`./ep${EP}.js`)).default({ g, W, H, TH, person: personA, extra, dof, fgBlur, grade, card, badge, atmo, hud, ...SHOTS, P, K, camK, mover, cam, pov, walk, black, vhs, darkTorch, frozenTV, seg, ease, lerp, hash, clamp, ...BG });
 
 // ---------- timeline ----------
 let acc = 0; for (const s of SCENES) { s.t0 = acc; acc += s.d; }
 const DUR = acc;
 SCENES.forEach(s => (s.lines || []).forEach(l => TEXT[l[0]] = l[3]));
-LINES = SCENES.flatMap(s => (s.lines || []).map(([id, who, at, th, en]) => ({ id, who, t: s.t0 + at, th, en, end: s.t0 + at + dur(id) + .7 })));
+LINES = SCENES.flatMap(s => (s.lines || []).map(([id, who, at, th, en, key]) => ({ id, who, t: s.t0 + at, th, en, key, end: s.t0 + at + dur(id) + .7 })));
+const { ACTIONS } = await import('./actions.js');
+ACTS = SCENES.flatMap(s => (s.acts || []).map(([who, name, at, d, opts]) => ({ who, name, t: s.t0 + at, dur: d || ACTIONS[name]?.dur || 2, opts })));
 function render(t) {
   g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H);
   let s = SCENES[0]; for (const x of SCENES) if (t >= x.t0) s = x;
   s.draw(t - s.t0, t);
   if (s.look !== false) { const L = s.look || {}; (L.atmo || []).forEach(([k, o]) => atmo(k, t, o || {})); if (!s.tape) grade(L.tone || 'night', L.v ?? .45); }
   if (s.tape) { vhs(t, { time: s.osd, date: s.date, tear: t - s.t0 > s.d - 4.6 && s.ev?.some(e => e[1] === 'tear') }); black(1 - seg(t - s.t0, 0, .3)); }
+  if (s.hud && !s.tape) hud(t - s.t0, s.hud);
+  if (s.overlay) s.overlay(t - s.t0, t);
   subs(t);
 }
 const EV = [];

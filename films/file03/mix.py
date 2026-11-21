@@ -8,7 +8,7 @@ from core.audio.sfx import SR, bp, lp, hp, add, limit, compress
 from core.audio import sampler as S
 rng = np.random.default_rng(3)
 EP = sys.argv[1] if len(sys.argv) > 1 else '1'
-EVF = 'events.json' if EP == '1' else f'events_ep{EP}.json'; VDIR = 'voices' if EP in ('1', '12', 'r', 'v2') else f'voices_ep{EP}'; OUTF = 'mix.wav' if EP == '1' else f'mix_ep{EP}.wav'
+EVF = 'events.json' if EP == '1' else f'events_ep{EP}.json'; VDIR = 'voices' if EP in ('1', '12', 'r', 'v2', 'v3') else f'voices_ep{EP}'; OUTF = 'mix.wav' if EP == '1' else f'mix_ep{EP}.wav'
 E = json.load(open(os.path.join(HERE, EVF))); DUR = E['dur']; EV = E['ev']; N = int(DUR * SR)
 tt = np.arange(N) / SR; mix = np.zeros((N, 2)); sec = lambda d: int(round(d * SR)); nz = lambda n: rng.standard_normal(n)
 def put(x, t, g=1., pan=0.):
@@ -196,6 +196,15 @@ FX.update({
   'torch': lambda t: pfx(rs('457463.mp3'), t, .35),
   'ding': lambda t: pfx(rs('634327.mp3', 1.0, 4.0, .005), t, .2, .3),
 })
+# a soft music bed under everything (the references always run one); it dips under speech (v3 and later)
+if EP in ('v3',):
+    _bd = realbed('799355.mp3', 0, 200, 4, 4); _hp = len(_bd) - sec(4); bed = np.zeros((N, 2))
+    for i in range(0, N, _hp): j = min(N, i + len(_bd)); bed[i:j] += _bd[:j - i]
+    duck = np.ones(N)
+    for e in EV:
+        if e['type'] == 'line': i0 = sec(max(0, e['t'] - .3)); i1 = min(N, sec(e['t'] + 4.5)); duck[i0:i1] = np.minimum(duck[i0:i1], .55)
+    duck = uniform_filter1d(duck, sec(.8))
+    mix += bed * (duck * (.03 - .012 * tape))[:, None]
 # room tone outside the tape: the street faintly through the walls, so the shop is never dead silent
 _rt = realbed('804844.mp3', 0, 58, 2, 2, cut=900); _hop = len(_rt) - sec(2); room = np.zeros((N, 2))
 for i in range(0, N, _hop): j = min(N, i + len(_rt)); room[i:j] += _rt[:j - i]
@@ -203,6 +212,12 @@ mix += room * (1 - tape)[:, None] * .006
 for e in EV:
     f = FX.get(e['type'])
     if f: f(e['t'])
+if EP in ('v3',):   # a slow bus compressor: brings the quiet and the loud closer (the references sit at LRA 4-7)
+    mono = mix.mean(1); env = np.sqrt(uniform_filter1d(mono ** 2, sec(.4)) + 1e-12)
+    thr = np.percentile(env[env > 1e-4], 60); gdb = np.where(env > thr, (1 / 3 - 1) * 20 * np.log10(env / thr), 0)
+    lo = np.where(env < thr * .25, np.minimum(6, -20 * np.log10(env / (thr * .25) + 1e-9) * .5), 0)   # lift the quietest passages a little
+    gain = 10 ** (uniform_filter1d(gdb + lo * (env > 1e-4), sec(.3)) / 20); mix *= gain[:, None]
+    mix *= 10 ** (10 / 20)   # make-up gain; the limiter below catches the few loud hits
 for c in range(2): mix[:, c] = limit(mix[:, c], .95)
 sf.write(os.path.join(HERE, OUTF), mix.astype(np.float32), SR)
 print('mix peak %.2f, %.1fs' % (np.abs(mix).max(), DUR))

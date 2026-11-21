@@ -17,3 +17,4 @@
 | 457463.mp3 | Small_Flashlight_Click_on_02.wav | Rudmer_Rotteveel | https://freesound.org/people/Rudmer_Rotteveel/sounds/457463/ | switch |
 | 634327.mp3 | Elevator_DingDong.wav | uniuniversal | https://freesound.org/people/uniuniversal/sounds/634327/ | ding |
 | 804844.mp3 | Street Ambience, Chinatown, Bangkok, Thailand (Feb 22, 2019) | marc.om | https://freesound.org/people/marc.om/sounds/804844/ | room tone: the street heard faintly through the shop walls |
+| 799355.mp3 | Ambient Drone | CVLTIV8R | https://freesound.org/people/CVLTIV8R/sounds/799355/ | the soft music bed under the whole episode (ep=v3) |

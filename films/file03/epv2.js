@@ -45,10 +45,10 @@ export default (api) => {
 
   // ---------- N1 · morning at the shop: a customer, then the radio ----------
   const OPEN = { d: 56, ev: [[3.0, 'door'], ...T(3.4, 6), [10.6, 'paper'], ...T(24.6, 6), [27.6, 'door'], [30.4, 'radio']],
-    lines: [['c1', 'aunt', 6.0, 'น้องคะ ช่วยดูม้วนนี้ให้หน่อย เทปงานแต่งป้าเอง', 'Could you look at this one for me? My wedding tape.'],
-            ['c2', 'beer', 11.8, 'เก็บไว้ใกล้เตาใช่ไหมครับ ฉลากมันบวม แต่เนื้อเทปยังดีอยู่', 'You kept it near the stove, right? The label has swollen. The tape itself is fine.'],
-            ['c3', 'aunt', 18.0, 'รู้ได้ไงเนี่ย ใช่เลย ไว้บนตู้ข้างเตา', 'How did you know? Yes, on the cupboard by the stove.'],
-            ['c4', 'beer', 22.4, 'พรุ่งนี้มารับได้เลยครับ', 'You can pick it up tomorrow.'],
+    lines: [['cu1', 'aunt', 6.0, 'น้องคะ ช่วยดูม้วนนี้ให้หน่อย เทปงานแต่งป้าเอง', 'Could you look at this one for me? My wedding tape.'],
+            ['cu2', 'beer', 11.8, 'เก็บไว้ใกล้เตาใช่ไหมครับ ฉลากมันบวม แต่เนื้อเทปยังดีอยู่', 'You kept it near the stove, right? The label has swollen. The tape itself is fine.'],
+            ['cu3', 'aunt', 18.0, 'รู้ได้ไงเนี่ย ใช่เลย ไว้บนตู้ข้างเตา', 'How did you know? Yes, on the cupboard by the stove.'],
+            ['cu4', 'beer', 22.4, 'พรุ่งนี้มารับได้เลยครับ', 'You can pick it up tomorrow.'],
             ['r1', 'radio', 31.4, '…อาคารวิชัยแล็บ ที่ปิดตายมายี่สิบเก้าปี จะเริ่มรื้อถอนต้นเดือนหน้า', '…the Wichai Lab building, sealed for twenty-nine years, will be demolished early next month.'],
             ['r2', 'radio', 39.6, 'ส่วนอดีตนักวิจัยประจำตึก ปัจจุบันยังรักษาตัวอยู่', 'The building\'s former head researcher is still receiving treatment.']],
     look: { tone: 'warm', atmo: [['beams', { a: .2 }], ['dust', { a: .5 }]] },
