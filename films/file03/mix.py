@@ -117,7 +117,7 @@ def realbed(name, start, d, a=1.5, r=1.5, cut=None):
     y = y / (np.sqrt(np.mean(y ** 2)) + 1e-9)
     return y * env(len(y), a, r)[:, None]
 # the market from inside Oat's shop: a real Bangkok market, muffled by the walls (was low-passed noise: it sounded like a storm)
-FX['market'] = lambda t: put(realbed('806522.mp3', 20, 60, 1.5, 2, cut=1600), t, .035)
+FX['market'] = lambda t: put(realbed('806522.mp3', 20, 60, 1.5, 2, cut=1600), t, .022)
 FX['knock'] = lambda t: [put(thump(110, .18) * .9 + bp(nz(sec(.18)), 400, 2000) * env(sec(.18), .002, .1) * .4, t + k * .32, .5) for k in range(3)]
 FX['startle'] = lambda t: put(bp(nz(sec(.4)), 1500, 6000) * env(sec(.4), .01, .3), t, .12)
 FX['sent'] = lambda t: put(np.sin(2 * np.pi * 1800 * np.arange(sec(.12)) / SR) * env(sec(.12), .005, .08) * .5, t, .3)
@@ -130,8 +130,56 @@ def babble(d):   # crowd murmur: many overlapping syllable-rate voices (band-pas
         x += bp(nz(n), 250 + k * 60, 1800 + k * 120) * uniform_filter1d(e, 1200)
     return x / (np.abs(x).max() + 1e-9)
 # the market crowd outside: a real walk through a Bangkok market alley, plus a motorbike going by
-FX['crowd'] = lambda t: (put(realbed('457367.mp3', 10, 30, 1, 1.5), t, .07), put(realbed('19366.mp3', 30, 8, 1, 2), t + 12, .03))
+FX['crowd'] = lambda t: (put(realbed('457367.mp3', 10, 30, 1, 1.5), t, .045), put(realbed('19366.mp3', 30, 8, 1, 2), t + 12, .02))
 FX['tvon'] = lambda t: (put(click(.03) * 2, t, .5), put(np.sin(2 * np.pi * 15700 * np.arange(sec(11)) / SR) * .02, t, 1))
+# ---- real recorded effects (CC0, sfx_real/CREDITS.md) replace the code-made ones; inside the 1997 tape they go through the camcorder
+_RC = {}
+def rs(name, a=0, b=None, fade=.01):
+    k = (name, a, b)
+    if k not in _RC:
+        y, sr = sf.read(os.path.join(REAL, name), always_2d=True); y = y[int(a * sr):int(b * sr) if b else None]
+        y = librosa.resample(np.ascontiguousarray(y.T), orig_sr=sr, target_sr=SR).T
+        if y.shape[1] == 1: y = np.repeat(y, 2, 1)
+        y = y / (np.abs(y).max() + 1e-9) * env(len(y), fade, min(.08, len(y) / SR / 4))[:, None]; _RC[k] = y
+    return _RC[k]
+def pfx(y, t, g, pan=0.):
+    y = y.copy()
+    if inTape(t): y = np.stack([np.tanh(1.6 * bp(y[:, c], 220, 5000, 2)) for c in range(2)], 1) * .8
+    if pan: y[:, 0] *= 1 - max(0, pan); y[:, 1] *= 1 + min(0, pan)
+    put(y, t, g)
+def _slices(name, n=10, d=.32):   # single footsteps cut from a walking take at its onsets, the loudest n
+    y, sr = sf.read(os.path.join(REAL, name), always_2d=True); m = y.mean(1)
+    on = librosa.onset.onset_detect(y=m.astype(np.float32), sr=sr, units='time', backtrack=True)
+    seg = [(float(np.abs(m[int(o * sr):int((o + d) * sr)]).max()), o) for o in on if o + d < len(m) / sr]
+    return [rs(name, max(0, o - .005), o + d) for _, o in sorted(seg, reverse=True)[:n]]
+STEPS, STAIRS = _slices('459964.mp3'), _slices('676378.mp3')
+def rstep(t, g=.1, stairs=False, echo=False):
+    x = (STAIRS if stairs else STEPS)[rng.integers(len(STAIRS if stairs else STEPS))]; pfx(x, t, g * rng.uniform(.75, 1), rng.uniform(-.2, .2))
+    if echo: pfx(np.stack([lp(x[:, c], 1800) for c in range(2)], 1), t + .18, g * .35)
+def rsteps(t0, d, per, g, echo=False, stairs=False):
+    k = 0
+    while k * per < d: rstep(t0 + k * per, g, stairs, echo); k += 1
+DOORS = [(3.318, 4.84), (10.9, 12.355), (17.529, 19.108), (12.951, 14.37)]
+_dk = [0]
+def rdoor(t, g=.22):
+    a, b = DOORS[_dk[0] % len(DOORS)]; _dk[0] += 1; pfx(rs('637492.mp3', a, b), t, g)
+FX.update({
+  'knock': lambda t: pfx(rs('629987.mp3', .08, .7), t, .32),
+  'door': lambda t: rdoor(t),
+  'door2': lambda t: pfx(rs('637492.mp3', 12.951, 14.37), t, .2),
+  'step': lambda t: rstep(t, .09),
+  'stepsAway': lambda t: rsteps(t - 5, 4, .5, .06),
+  'stairs': lambda t: rsteps(t, 13, .42, .1, echo=True, stairs=True),
+  'stepsWalk': lambda t: rsteps(t, 9.5, .5, .09, echo=True),
+  'paper': lambda t: pfx(rs('371897.mp3', .79, 1.719), t, .12),
+  'chain': lambda t: pfx(rs('452576.mp3', .114, 1.948), t, .2),
+  'mop': lambda t: pfx(rs('515158.mp3', 0, 5.8, .3), t, .08, .3),
+  'car': lambda t: pfx(rs('495795.mp3', 0, 10.5, .8), t, .12),
+  'lock': lambda t: pfx(rs('617981.mp3', 1.46, 4.29), t, .22),
+  'insert': lambda t: (pfx(rs('845461.mp3', 0, 4.182), t, .3), put(motor(1.8, 80, 260), t + .9, .12)),
+  'torch': lambda t: pfx(rs('457463.mp3'), t, .35),
+  'ding': lambda t: pfx(rs('634327.mp3', 1.0, 4.0, .005), t, .2, .3),
+})
 for e in EV:
     f = FX.get(e['type'])
     if f: f(e['t'])
