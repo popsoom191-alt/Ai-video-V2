@@ -333,16 +333,17 @@ export default (api) => {
     } };
 
   // ---------- 21 · the drive: traffic; inside, Nid tells him who Mind was ----------
-  const CAR = { d: 58, ev: [[0, 'car'], [10, 'car'], [20, 'car'], [30, 'car'], [40, 'car'], [48, 'car']],
+  const CAR = { d: 66, ev: [[0, 'car'], [10, 'car'], [20, 'car'], [30, 'car'], [40, 'car'], [50, 'car'], [56, 'car']],
     lines: [['x9', 'nid', 13.6, 'ร้านเขาอยู่ในตลาดเก่า ฉันเคยไปขอสัมภาษณ์ เขาไม่ยอมพูด', "His shop's in the old market. I tried to interview him once. He wouldn't talk."],
             ['cr1', 'beer', 21.0, 'คุณนิดครับ… ทำไมคุณถึงตามเรื่องนี้มาตลอด', 'Ms. Nid… why have you followed this all these years?'],
             ['cr2', 'nid', 27.0, 'มายด์ในเทป…', 'Mind, on the tape…'],
             ['cr3', 'nid', 31.0, '…คือพี่สาวฉัน', '…is my sister.'],
             ['cr4', 'nid', 36.4, 'คืนนั้นพี่หายไป ส่วนพี่ต้นถูกพบที่ล็อบบี้ตอนเช้า ไม่ยอมพูดอะไรเลย', 'That night she disappeared. Ton was found in the lobby in the morning. He would not say a word.'],
-            ['cr5', 'nid', 44.2, 'ตอนนี้พี่ต้นย้ายไปอยู่ต่างจังหวัด ไม่ติดต่อใครอีก', 'Ton moved away upcountry. He talks to no one now.']],
+            ['cr5', 'nid', 44.2, 'พี่ต้นสติไม่ดีตั้งแต่คืนนั้น ที่บ้านพาไปรักษาตัวอยู่ต่างจังหวัด', 'Ton has not been right since that night. His family took him upcountry to care for him.'],
+            ['cr6', 'nid', 50.8, 'ตำรวจบอกว่าหลักฐานไม่พอ ทำอะไรไม่ได้… ฉันเลยต้องหาเอง', 'The police said there was not enough evidence… so I have to find it myself.']],
     look: { tone: 'day', v: .4 },
     draw(lt, t) {
-      const inside = lt > 12 && lt < 49;
+      const inside = lt > 12 && lt < 57;
       if (!inside) {
         cityRoad(g, t);
         vehicle(g, 'bus', 1900 - ((t * 120) % 3400), 880, -.62, t);                     // oncoming, far lane
@@ -350,13 +351,13 @@ export default (api) => {
         sedan(g, 900, 980, .9, { wheel: t * 12, heads: [[60, '#3a2a24'], [20, '#241e20']] });
         vehicle(g, 'moto', ((t * 260) % 2800) - 400, 1050, .8, t);                       // a motorbike cuts past, near lane
         vehicle(g, 'taxi', ((t * 180 + 1300) % 3000) - 400, 1060, .85, t);
-        black(1 - seg(lt, 0, .5)); fadeX(lt, 11.4, 12.6); fadeX(lt, 48.4, 49.6); black(seg(lt, 57.3, 58)); return;
+        black(1 - seg(lt, 0, .5)); fadeX(lt, 11.4, 12.6); fadeX(lt, 56.4, 57.6); black(seg(lt, 65.3, 66)); return;
       }
       carFront(g, t, () => {
-        person(g, 'nid', 600, 1700, 1500, P('nid', t, { view: 'front', close: true, look: lt > 21 && lt < 26 ? .8 : -.2, expr: lt > 27 ? 'worried' : 'neutral' }));
+        person(g, 'nid', 600, 1700, 1500, P('nid', t, { view: 'front', close: true, look: lt > 21 && lt < 26 ? .8 : -.2, expr: lt > 50 ? 'frown' : lt > 27 ? 'worried' : 'neutral' }));
         person(g, 'beer', 1340, 1720, 1500, P('beer', t, { view: 'front', close: true, look: lt > 27 ? -.9 : -.2, expr: lt > 31 ? 'worried' : 'neutral' }));
       });
-      fadeX(lt, 11.4, 12.6); fadeX(lt, 48.4, 49.6);
+      fadeX(lt, 11.4, 12.6); fadeX(lt, 56.4, 57.6);
     } };
 
   // ---------- N4 · they arrive: the car pulls in, they get out and walk into the market ----------

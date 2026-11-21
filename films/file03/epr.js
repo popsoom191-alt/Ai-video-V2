@@ -239,7 +239,7 @@ export default (api) => {
           towelOn(1 - ease(seg(lt, 30.4, 31.4)));
           shopDoor(g, ease(seg(lt, 16.6, 17.4)) * (1 - ease(seg(lt, 26.8, 27.6))));
           const nm = mover(lt, [[0, 1860], [23, 1860], [26, 1200]]);
-          if (lt > 16.8) person(g, 'nid', nm.x, 990, 560, P('nid', t, nm.walk != null ? { walk: nm.walk, flip: true } : { flip: true, look: .6, arms: 'down', expr: lt < 23 ? 'worried' : 'neutral' }));
+          if (lt > 16.8) person(g, 'nid', nm.x, 990, 560, P('nid', t, nm.walk != null ? { walk: nm.walk, flip: true } : { flip: true, look: lt > 41 && lt < 45.5 ? 1 : .6, arms: 'down', expr: lt < 23 ? 'worried' : lt > 41 && lt < 45.5 ? 'frown' : 'neutral' }));
           const asleep = lt < 8.2, bm = mover(lt, [[0, 880], [13.4, 880], [16.4, 1620], [21.6, 1620], [24.4, 820]]);
           g.save(); if (asleep) { g.translate(880, 990); g.rotate(-.18); g.translate(-880, -990); }
           const holdTape = lt > 31.4 && lt < 70.4, paperOut = lt > 45.2;

@@ -18,7 +18,7 @@ function elbow(s, h, L1 = 62, L2 = 60, side = 1) {   // side: +1 elbow goes to t
 }
 // arm poses: where the hands go (3/4 view, facing right). The near hand is R.
 const ARMS = {
-  down: { L: [-22, -204], R: [30, -204] },          // arms hang straight, close to the body
+  down: { L: [-17, -196], R: [30, -196] },          // arms hang straight down the sides (the far one mostly hidden behind the body)
   chest: { L: [10, -250], R: [34, -252] },          // both hands hold something at the chest, elbows out
   torch: { L: [-28, -202], R: [78, -268] },        // the near arm reaches forward with a torch
   point: { L: [-28, -202], R: [80, -312] },
@@ -64,16 +64,16 @@ function standing(g, C, P) {
   if (P.idle && P.idleK > 0 && !P.arms && !P.hold && !P.hands && !P.sit && !P._seated && ARMS[P.idle]) { idleK = P.idleK; IP = ARMS[P.idle]; for (const k of ['L', 'R']) hands[k] = [lerp2(pose[k][0], IP[k][0], idleK), lerp2(pose[k][1], IP[k][1], idleK)]; }
   if (P.gesture && !P.hands?.R && (P.arms || 'down') === 'down' && !P.hold) hands.R = [hands.R[0] + 10 + 3 * Math.sin(P.t * 4.7), hands.R[1] - 34 + 6 * Math.sin(P.t * 3.1)];
   // far arm (behind)
-  const sL = [-24, -318], eL0 = (!P.hands?.L && pose.eL) || elbow(sL, hands.L, 62, 60, -1), eL = IP && IP.eL ? [lerp2(eL0[0], IP.eL[0], idleK), lerp2(eL0[1], IP.eL[1], idleK)] : eL0;
-  path(g, [sL, eL, hands.L], 13, dk(C.sleeve || C.top, .3));
+  const sL = [-20, -318], eL0 = (!P.hands?.L && pose.eL) || elbow(sL, hands.L, 62, 60, -1), eL = IP && IP.eL ? [lerp2(eL0[0], IP.eL[0], idleK), lerp2(eL0[1], IP.eL[1], idleK)] : eL0;
+  path(g, [sL, eL, hands.L], 11, dk(C.sleeve || C.top, .3));
   // torso: tapered, a darker plane on the shaded (left) side
   const len = C.coatLen ?? -222;
   poly(g, [[-22, -330], [22, -330], [32, -326, 31, -312], [28, -280], [26, len], [-26, len], [-28, -280], [-32, -326, -22, -330]], C.top);
   poly(g, [[-22, -330], [-12, -330], [-10, len], [-26, len], [-28, -280], [-32, -326, -22, -330]], dk(C.top, .22));
   C.outfit && C.outfit(g, P, dk, lt);
   // near arm
-  const sR = [24, -318], eR0 = (!P.hands?.R && pose.eR) || elbow(sR, hands.R, 62, 60, 1), eR = IP && IP.eR ? [lerp2(eR0[0], IP.eR[0], idleK), lerp2(eR0[1], IP.eR[1], idleK)] : eR0;
-  path(g, [sR, eR, hands.R], 13, C.sleeve || C.top);
+  const sR = [27, -318], eR0 = (!P.hands?.R && pose.eR) || elbow(sR, hands.R, 62, 60, 1), eR = IP && IP.eR ? [lerp2(eR0[0], IP.eR[0], idleK), lerp2(eR0[1], IP.eR[1], idleK)] : eR0;
+  path(g, [sR, eR, hands.R], 11, C.sleeve || C.top);
   const A2 = P.arms || (idleK > .6 && (P.idle === 'cross' || P.idle === 'chin') ? P.idle : null);
   if (A2 === 'cross' && !P.hands) { path(g, [eL, [hands.L[0], hands.L[1]]], 13, dk(C.sleeve || C.top, .3)); path(g, [eR, hands.R], 13, C.sleeve || C.top); }   // folded arms: both forearms in front
   else if (!pose.hide && !(IP && IP.hide && idleK > .7)) for (const k of ['L', 'R']) hand(g, hands[k][0], hands[k][1], k === 'L' ? dk(skin, .15) : skin);
@@ -158,15 +158,16 @@ function frontBack(g, C, P, back) {
   const FS = { hip: { L: [-36, -200], R: [30, -228], eR: [56, -262] }, hips: { L: [-30, -228], R: [30, -228], eL: [-56, -262], eR: [56, -262] },
     cross: { L: [22, -262], R: [-22, -270], eL: [-40, -258], eR: [40, -262], hide: true }, chin: { L: [14, -258], R: [6, -344], eL: [-38, -252], eR: [36, -280] },
     pocket: { L: [-26, -214], R: [26, -214], eL: [-40, -262], eR: [40, -262], hide: true }, wave: { L: [-36, -200], R: [60, -430], eR: [58, -336] }, strap: { L: [-36, -200], R: [-6, -298], eR: [34, -252] } }[A];
-  const H = FS ? FS : A === 'chest' ? { L: [-12, -262], R: [12, -262] } : A === 'torch' ? (back ? { L: [-36, -200], R: [30, -290] } : { L: [-36, -200], R: [44, -268] }) : A === 'phone' ? { L: [-36, -200], R: [26, -350] } : { L: [-33, -204], R: [33, -204] };
+  const H = FS ? FS : A === 'chest' ? { L: [-12, -262], R: [12, -262] } : A === 'torch' ? (back ? { L: [-36, -200], R: [30, -290] } : { L: [-36, -200], R: [44, -268] }) : A === 'phone' ? { L: [-36, -200], R: [26, -350] } : { L: [-33, -196], R: [33, -196] };
   const hands = { L: P.hands?.L || H.L, R: P.hands?.R || H.R };
   const len = C.coatLen ?? -222;
   const torso = () => { poly(g, [[-31, -324], [31, -324], [29, -280], [27, len], [-27, len], [-29, -280]], C.top); poly(g, [[-31, -324], [-14, -324], [-12, len], [-27, len], [-29, -280]], dk(C.top, .2)); };
-  const arm = sd => { const s = [sd * 27, -318], k = sd > 0 ? 'R' : 'L', h = hands[k], L2 = A === 'chest' ? 30 : 60, e = (FS && !P.hands?.[k] && FS['e' + k]) || elbow(s, h, 62, L2, sd); path(g, [s, e, h], 13, sd < 0 ? dk(C.sleeve || C.top, .15) : (C.sleeve || C.top)); if ((!back || A === 'down') && !(FS && FS.hide)) hand(g, h[0], h[1], skin); };
+  const arm = sd => { const s = [sd * 31, -318], k = sd > 0 ? 'R' : 'L', h = hands[k], L2 = A === 'chest' ? 30 : 60, e = (FS && !P.hands?.[k] && FS['e' + k]) || elbow(s, h, 62, L2, sd); path(g, [s, e, h], 11, sd < 0 ? dk(C.sleeve || C.top, .15) : (C.sleeve || C.top)); if ((!back || A === 'down') && !(FS && FS.hide)) hand(g, h[0], h[1], skin); };
   if (back) { torso(); arm(-1); arm(1); }
   else { torso(); C.outfit && C.outfit(g, P, dk, lt); arm(-1); arm(1); if (A === 'cross' && !P.hands) { const eL = FS.eL, eR = FS.eR; path(g, [eL, hands.L], 13, dk(C.sleeve || C.top, .15)); path(g, [eR, hands.R], 13, C.sleeve || C.top); } if (P.hold === 'box') carryBox(g, 0, -258); else if (P.hold) C.props && C.props(g, P, hands, dk, lt); }
   const hx = 0, hy = -366;
   poly(g, [[-6, -342], [6, -342], [7, -320], [-6, -320]], dk(skin, .12));
+  g.translate(0, -338); g.scale(1.08, 1.08); g.translate(0, 338);   // a slightly larger head (person() restores)
   if (back) {
     C.hairBack && C.hairBack(g, 'back', dk);
     for (const sd of [-1, 1]) el(g, sd * 23, hy + 2, 4, 6, dk(skin, .1));
@@ -202,7 +203,7 @@ function frontBack(g, C, P, back) {
 }
 
 // ---------- head: an egg, two-tone, small eyes ----------
-function head(g, C, P, view) { g.save(); g.translate(0, P.nod || 0); headInner(g, C, P, view); g.restore(); }
+function head(g, C, P, view) { g.save(); g.translate(0, P.nod || 0); g.translate(0, -338); g.scale(1.08, 1.08); g.translate(0, 338); headInner(g, C, P, view); g.restore(); }
 function headInner(g, C, P, view) {
   const skin = C.skin || SK, hx = view === 'side' ? 2 : 2, hy = -366;
   poly(g, [[-6, -342], [6, -342], [7, -320], [-6, -320]], dk(skin, .12));   // neck
