@@ -126,7 +126,7 @@ return [
 
   { d: 10, tape: true, osd: 'AM 2:39', ev: [[0, 'stepsWalk']],   // walking toward the lift
     draw(lt, t) {
-      pov(t, 960, 540, lerp(1, 2.2, ease(seg(lt, 0, 9))), () => { corridor(g, t, .75, { farLit: true }); g.fillStyle = '#9ca0a2'; g.fillRect(890, 400, 140, 160); g.fillStyle = '#e8463c'; g.font = '700 22px monospace'; g.fillText('4', 952, 392); person(g, 'mind', lerp(860, 900, seg(lt, 0, 9)), lerp(1000, 760, seg(lt, 0, 9)), lerp(520, 280, seg(lt, 0, 9)), P('mind', t, { view: 'back', arms: 'torch' })); }, 1, 1);
+      pov(t, 960, 540, lerp(1, 2.2, ease(seg(lt, 0, 9))), () => { corridor(g, t, .75, { farLit: true }); g.fillStyle = '#9ca0a2'; g.fillRect(890, 400, 140, 160); g.fillStyle = '#e8463c'; g.font = '700 22px monospace'; g.fillText('4', 952, 392); person(g, 'mind', lerp(860, 900, seg(lt, 0, 9)), lerp(1000, 760, seg(lt, 0, 9)), lerp(520, 280, seg(lt, 0, 9)), P('mind', t, { view: 'back', arms: 'torch', hold: true })); }, 1, 1);
     } },
 
   { d: 20, tape: true, osd: 'AM 2:41', ev: [[.6, 'liftdoor'], [7.6, 'flicker'], [9.4, 'blackout'], [11.6, 'buzz'], [12.8, 'blackout']],   // the lift: Fon, darkness, only the teddy bear
@@ -155,10 +155,10 @@ return [
           if (lt > 6) person(g, 'thing', 960, lerp(700, 1060, nearK), lerp(430, 1500, nearK), { t });
           darkTorch(bx, by, 300 + nearK * 400, .97);
           g.save(); g.globalCompositeOperation = 'screen'; const gr = g.createLinearGradient(1180, 1080, bx, by); gr.addColorStop(0, 'rgba(255,248,220,.35)'); gr.addColorStop(1, 'rgba(255,248,220,.04)'); g.fillStyle = gr; g.beginPath(); g.moveTo(1150, 1000); g.lineTo(bx - 170, by); g.lineTo(bx + 170, by); g.lineTo(1230, 1000); g.closePath(); g.fill(); g.restore();
-          person(g, 'mind', 1080, 1260, 820, { t, view: 'back', arms: 'torch' });
+          person(g, 'mind', 1080, 1260, 820, { t, view: 'back', arms: 'torch', hold: true });
         }, lt > 9.4 && lt < 12 ? .4 : 1.6);
       } else {   // her face, lit from below by the torch
-        pov(t, 960, 470, 2.2, () => { corridor(g, t, .15); person(g, 'mind', 960, 1000, 620, P('mind', t, { view: 'front', expr: 'scared', arms: 'torch' })); darkTorch(960, 560, 520, .9); }, 2);
+        pov(t, 960, 470, 2.2, () => { corridor(g, t, .15); person(g, 'mind', 960, 1000, 620, P('mind', t, { view: 'front', expr: 'scared', arms: 'torch', hold: true })); darkTorch(960, 560, 520, .9); }, 2);
       }
       if (lt > 19.8) { g.fillStyle = '#0a0a0c'; g.fillRect(0, 0, W, H); for (let i = 0; i < 1600; i++) { g.fillStyle = `rgba(255,255,255,${hash(Math.floor(t * 30) * 11 + i) * .6})`; g.fillRect(hash(i + Math.floor(t * 30)) * W, hash(i * 3 + Math.floor(t * 30)) * H, 3, 2); } }
     } },

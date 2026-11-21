@@ -10,7 +10,7 @@ const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x)), seg = (t, a, b) 
 const hash = n => { n = Math.sin(n * 127.1 + 311.7) * 43758.5453; return n - Math.floor(n); };
 const fetchJ = async p => { try { const r = await fetch(p); return r.ok ? await r.json() : {}; } catch { return {}; } };
 const EPN = new URLSearchParams(location.search).get('ep') || '1';
-const DURS = await fetchJ(EPN === '1' || EPN === '12' ? 'voices/dur.json' : `voices_ep${EPN}/dur.json`);   // ep12 = the merged episode, reuses episode 1's voices
+const DURS = await fetchJ(['1', '12', 'r'].includes(EPN) ? 'voices/dur.json' : `voices_ep${EPN}/dur.json`);   // ep12 = the merged episode, reuses episode 1's voices
 let TEXT = {};
 const dur = id => DURS[id] || Math.max(1.6, (TEXT[id] || '').length * .085);
 
@@ -18,8 +18,14 @@ const dur = id => DURS[id] || Math.max(1.6, (TEXT[id] || '').length * .085);
 let LINES = [];
 const speaking = (who, t) => LINES.some(l => l.who === who && t >= l.t && t < l.t + dur(l.id));
 const talk = (who, t) => speaking(who, t) ? .35 + .65 * Math.abs(Math.sin(t * 17 + who.length)) : 0;
-const P = (who, t, extra = {}) => ({ talk: talk(who, t), blink: (t * .31 + who.length * .17) % 1 < .035, t, ...extra });
-function cam(x, y, z, fn, rot = 0) { g.save(); g.translate(W / 2, H / 2); g.rotate(rot); g.scale(z, z); g.translate(-x, -y); fn(); g.restore(); }
+// speaker: a small hand gesture and a nod; listener: an occasional nod
+const P = (who, t, extra = {}) => { const sp = speaking(who, t); return { talk: talk(who, t), blink: (t * .31 + who.length * .17) % 1 < .035, t, gesture: sp, nod: sp ? Math.sin(t * 4.2) * 1.4 : (Math.sin(t * .8 + who.length * 2) > .94 ? Math.sin(t * 9) * 2.4 : 0), ...extra }; };
+// keyframes [[t, v | [v...]], ...] eased per segment; a camera that follows them; a walker between positions
+const K = (lt, keys) => { if (lt <= keys[0][0]) return keys[0][1]; for (let i = 0; i < keys.length - 1; i++) { const [a, A] = keys[i], [b, B] = keys[i + 1]; if (lt <= b) { const u = ease(seg(lt, a, b)); return Array.isArray(A) ? A.map((v, j) => lerp(v, B[j], u)) : lerp(A, B, u); } } return keys[keys.length - 1][1]; };
+const camK = (lt, keys, fn, rot = 0) => { const [x, y, z] = K(lt, keys); cam(x, y, z, fn, rot); };
+const mover = (lt, keys, speed = 7) => { for (let i = 0; i < keys.length - 1; i++) { const [a, A] = keys[i], [b, B] = keys[i + 1]; if (lt >= a && lt <= b && A !== B) return { x: lerp(A, B, seg(lt, a, b)), walk: (lt - a) * speed, flip: B < A }; } let x = keys[0][1]; for (const [a, A] of keys) if (lt >= a) x = A; return { x, walk: null, flip: null }; };
+function cam(x, y, z, fn, rot = 0) { if (z >= 1) { x = clamp(x, W / (2 * z) + 4, W - W / (2 * z) - 4); y = clamp(y, H / (2 * z) + 4, H - H / (2 * z) - 4); } g.save();   // the camera never shows past the edge of the drawing
+  g.translate(W / 2, H / 2); g.rotate(rot); g.scale(z, z); g.translate(-x, -y); fn(); g.restore(); }
 // a handheld camcorder: slow drift + breathing + a step bob while walking
 const hand = (t, amt = 1, walking = 0) => [Math.sin(t * .7) * 9 * amt + Math.sin(t * 2.3) * 3 * amt, Math.sin(t * .9 + 1) * 6 * amt + Math.abs(Math.sin(t * 5.5)) * 14 * walking, Math.sin(t * .5) * .008 * amt];
 function pov(t, x, y, z, fn, amt = 1, walking = 0) { const [dx, dy, r] = hand(t, amt, walking); cam(x + dx, y + dy, z, fn, r); }
@@ -59,7 +65,8 @@ function frozenTV(drawFrame, t) {   // Beer's TV showing a paused frame, with "P
 // ---------- the episode (ep1.js, ep2.js …; pick with ?ep=N) ----------
 const Q = new URLSearchParams(location.search), EP = Q.get('ep') || '1';
 const BG = await import('./bg.js');
-const SCENES = (await import(`./ep${EP}.js`)).default({ g, W, H, TH, person, P, cam, pov, walk, black, vhs, darkTorch, frozenTV, seg, ease, lerp, hash, clamp, ...BG });
+const { extra } = await import('./chars2.js');
+const SCENES = (await import(`./ep${EP}.js`)).default({ g, W, H, TH, person, extra, P, K, camK, mover, cam, pov, walk, black, vhs, darkTorch, frozenTV, seg, ease, lerp, hash, clamp, ...BG });
 
 // ---------- timeline ----------
 let acc = 0; for (const s of SCENES) { s.t0 = acc; acc += s.d; }

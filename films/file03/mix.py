@@ -8,7 +8,7 @@ from core.audio.sfx import SR, bp, lp, hp, add, limit, compress
 from core.audio import sampler as S
 rng = np.random.default_rng(3)
 EP = sys.argv[1] if len(sys.argv) > 1 else '1'
-EVF = 'events.json' if EP == '1' else f'events_ep{EP}.json'; VDIR = 'voices' if EP in ('1', '12') else f'voices_ep{EP}'; OUTF = 'mix.wav' if EP == '1' else f'mix_ep{EP}.wav'
+EVF = 'events.json' if EP == '1' else f'events_ep{EP}.json'; VDIR = 'voices' if EP in ('1', '12', 'r') else f'voices_ep{EP}'; OUTF = 'mix.wav' if EP == '1' else f'mix_ep{EP}.wav'
 E = json.load(open(os.path.join(HERE, EVF))); DUR = E['dur']; EV = E['ev']; N = int(DUR * SR)
 tt = np.arange(N) / SR; mix = np.zeros((N, 2)); sec = lambda d: int(round(d * SR)); nz = lambda n: rng.standard_normal(n)
 def put(x, t, g=1., pan=0.):
@@ -114,6 +114,13 @@ FX['startle'] = lambda t: put(bp(nz(sec(.4)), 1500, 6000) * env(sec(.4), .01, .3
 FX['sent'] = lambda t: put(np.sin(2 * np.pi * 1800 * np.arange(sec(.12)) / SR) * env(sec(.12), .005, .08) * .5, t, .3)
 FX['lock'] = lambda t: (put(click(.03) * 2, t, .5), put(click(.02) * 2, t + .25, .5))
 FX['car'] = lambda t: put(np.stack([lp(nz(sec(10)), 220) * .3 + np.sin(2 * np.pi * 62 * np.arange(sec(10)) / SR) * .08] * 2, 1) * env(sec(10), .8, .8)[:, None], t)
+def babble(d):   # crowd murmur: many overlapping syllable-rate voices (band-passed noise with a jittery envelope)
+    n = sec(d); x = np.zeros(n)
+    for k in range(10):
+        e = np.repeat(np.clip(rng.standard_normal(n // 2400 + 2) * .6 + .4, 0, 1), 2400)[:n]
+        x += bp(nz(n), 250 + k * 60, 1800 + k * 120) * uniform_filter1d(e, 1200)
+    return x / (np.abs(x).max() + 1e-9)
+FX['crowd'] = lambda t: put(np.stack([babble(30), babble(30)], 1) * env(sec(30), 1, 1.5)[:, None], t, .09)
 FX['tvon'] = lambda t: (put(click(.03) * 2, t, .5), put(np.sin(2 * np.pi * 15700 * np.arange(sec(11)) / SR) * .02, t, 1))
 for e in EV:
     f = FX.get(e['type'])
