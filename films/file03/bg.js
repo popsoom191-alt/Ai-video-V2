@@ -209,6 +209,7 @@ export function workOrder(g, t) {
 export function oatShop(g, t) {
   vgrad(g, 0, 0, W, H, '#7a6a52', '#4a3e30'); rect(g, 0, 860, W, 220, '#5a5040');
   rect(g, 0, 0, W, 90, '#c8322c'); g.fillStyle = '#fff'; g.font = `700 54px ${TH}`; g.fillText('โอ๊ตการไฟฟ้า · ซ่อมพัดลม ทีวี วิทยุ', 60, 64);
+  g.font = `600 30px ${TH}`; g.fillStyle = '#ffe8a0'; g.fillText('ก่อตั้ง ๒๕๔๑', 1640, 62);
   for (let r = 0; r < 3; r++) { rect(g, 80, 260 + r * 170, 760, 12, '#5a4430'); for (let k = 0; k < 5; k++) { const x = 100 + k * 150, y = 160 + r * 170; if ((r + k) % 2) { rr(g, x, y, 120, 96, 8, '#3a3a40'); rect(g, x + 12, y + 12, 96, 66, '#2a3a40'); } else { g.fillStyle = '#d8d0c0'; g.beginPath(); g.arc(x + 60, y + 50, 46, 0, 7); g.fill(); g.strokeStyle = '#8a8a8a'; g.lineWidth = 3; for (let a = 0; a < 3; a++) { g.beginPath(); g.moveTo(x + 60, y + 50); g.lineTo(x + 60 + Math.cos(a * 2.1 + t * (k % 3 === 0 ? 8 : 0)) * 40, y + 50 + Math.sin(a * 2.1 + t * (k % 3 === 0 ? 8 : 0)) * 40); g.stroke(); } } } }
   for (let k = 0; k < 9; k++) { g.strokeStyle = ['#c8322c', '#1a1a1e', '#2a6ab0', '#e0a830'][k % 4]; g.lineWidth = 6; g.beginPath(); g.moveTo(1000 + k * 40, 120); g.quadraticCurveTo(1020 + k * 40, 300 + (k % 3) * 40, 1040 + k * 40, 120); g.stroke(); }   // cable loops hanging
   rect(g, 960, 640, 900, 40, '#6a5034'); rect(g, 990, 680, 30, 200, '#4a3a26'); rect(g, 1800, 680, 30, 200, '#4a3a26');                                                       // counter
@@ -225,4 +226,64 @@ export function shopHigh(g, t) {
   g.save(); g.translate(W / 2, H / 2); g.rotate(-.06); g.scale(.78, .78); g.translate(-W / 2, -H / 2 + 40);
   shop(g, t, true, { clock: 1.2 });
   g.restore();
+}
+
+// ---------- added for the merged episode ----------
+// the shop's front door on the right wall (drawn over shop()); open = 0..1
+export function shopDoor(g, open = 0, day = true) {
+  rect(g, 1770, 360, 150, 500, day ? '#4a3a2c' : '#2a2018');
+  if (open > 0) rect(g, 1780, 370, 130, 490, day ? '#e8e2d0' : '#1a2030');   // daylight outside
+  const w = 130 * (1 - open * .8);
+  rect(g, 1780, 370, w, 490, day ? '#7a5a3e' : '#3e2e20'); rect(g, 1780 + w - 18, 600, 8, 30, '#c8b060');
+}
+// the building in 2026: sealed, boarded windows, a chained gate, a demolition notice
+export function building2026(g, t) {
+  vgrad(g, 0, 0, W, H, '#8a9aa8', '#c8ccc8');
+  rect(g, 560, 160, 800, 760, '#6a6a70'); rect(g, 540, 140, 840, 30, '#5a5a62');
+  for (let f = 0; f < 6; f++) for (let k = 0; k < 8; k++) { const x = 600 + k * 94, y = 200 + f * 118; rect(g, x, y, 60, 70, '#2a2a30'); if (hash(f * 9 + k) > .3) { rect(g, x - 4, y + 18, 68, 12, '#9a7a52'); rect(g, x - 4, y + 42, 68, 12, '#8a6a46'); } }
+  for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(60,80,40,${.3 + .4 * hash(i)})`; g.beginPath(); g.ellipse(560 + hash(i + 3) * 800, 700 + hash(i + 5) * 220, 20 + hash(i) * 30, 40, 0, 0, 7); g.fill(); }   // weeds and vines
+  rect(g, 0, 920, W, 160, '#5a5a56'); for (let k = 0; k < 40; k++) rect(g, k * 50, 820, 8, 110, '#3a3a40'); rect(g, 0, 830, W, 8, '#3a3a40');
+  g.strokeStyle = '#8a8a90'; g.lineWidth = 8; g.beginPath(); g.arc(960, 870, 30, 0, 7); g.stroke();
+  rect(g, 1120, 700, 380, 200, '#f2e8c8'); rect(g, 1120, 700, 380, 50, '#c8322c'); g.fillStyle = '#fff'; g.font = `700 36px ${TH}`; g.fillText('เตรียมรื้อถอน', 1190, 738);
+  g.fillStyle = '#2a2622'; g.font = `600 30px ${TH}`; g.fillText('อาคารวิชัยแล็บ', 1150, 800); g.fillText('เริ่ม ๑ ธ.ค. ๒๕๖๙', 1150, 850);
+}
+// a phone held up, its screen showing a picture
+export function phoneHeld(g, drawScreen, t) {
+  vgrad(g, 0, 0, W, H, '#4a4036', '#2a241e');
+  rr(g, 700, 80, 520, 960, 50, '#1a1a1e'); g.save(); g.beginPath(); g.roundRect(724, 130, 472, 860, 30); g.clip(); g.translate(724, 130); g.scale(472 / W, 860 / H); drawScreen(); g.restore();
+  g.fillStyle = '#d6a07c'; g.beginPath(); g.ellipse(1240, 820, 90, 160, -.3, 0, 7); g.fill();
+}
+export function phoneScreen(g, lines, t) {   // a messages / call-log screen
+  vgrad(g, 0, 0, W, H, '#f2f2f6', '#e6e6ee');
+  g.font = `700 90px ${TH}`; g.fillStyle = '#2a2a30'; g.fillText(lines.title, 120, 200);
+  lines.rows.forEach((r, i) => { rr(g, 100, 300 + i * 220, 1720, 180, 40, r.me ? '#3a8a68' : '#ffffff'); g.fillStyle = r.me ? '#fff' : '#2a2a30'; g.font = `600 70px ${TH}`; g.fillText(r.text, 160, 410 + i * 220); });
+}
+// Beer's shopfront, by day
+export function shopFront(g, t) {
+  vgrad(g, 0, 0, W, H, '#9ab0c0', '#d8dcd8'); rect(g, 0, 900, W, 180, '#7a7a76');
+  rect(g, 360, 180, 1200, 720, '#c8b89a'); rect(g, 360, 180, 1200, 120, '#2a6a4e'); g.fillStyle = '#f2ecd8'; g.font = `700 70px ${TH}`; g.fillText('เบียร์ซ่อมเทป · TAPE REPAIR', 440, 262);
+  rect(g, 460, 380, 560, 380, '#2a3a44'); for (let k = 0; k < 7; k++) rect(g, 490 + k * 76, 420, 50, 70, TAPEC[k % TAPEC.length]);
+  rect(g, 1140, 360, 300, 540, '#5a4430'); rect(g, 1400, 610, 12, 40, '#c8b060');
+}
+// a small car crossing the city (side view)
+export function carRide(g, t) {
+  vgrad(g, 0, 0, W, H, '#a8c0d0', '#e0e4e0');
+  for (let L = 0; L < 2; L++) for (let k = 0; k < 14; k++) { const w = 160 + hash(k + L * 20) * 120, h = 200 + hash(k * 3 + L) * (L ? 260 : 420), x = ((k * 230 - t * (L ? 260 : 120)) % 3220 + 3220) % 3220 - 300; rect(g, x, 840 - h, w, h, L ? '#8a909a' : '#a8aeb6'); for (let r = 0; r < h / 60 - 1; r++) for (let c = 0; c < w / 50 - 1; c++) rect(g, x + 16 + c * 50, 860 - h + r * 60, 26, 30, L ? '#6a7480' : '#c8d0d8'); }
+  rect(g, 0, 840, W, 240, '#5a5a5e'); for (let k = 0; k < 12; k++) rect(g, ((k * 260 - t * 600) % 2340 + 2340) % 2340 - 200, 950, 120, 10, '#e8e2c8');
+  const bob = Math.sin(t * 9) * 3;
+  g.save(); g.translate(960, 860 + bob);
+  rr(g, -260, -150, 520, 110, 30, '#c8322c'); rr(g, -170, -230, 300, 100, 30, '#c8322c'); rect(g, -150, -215, 120, 70, '#a8c8d8'); rect(g, -20, -215, 120, 70, '#a8c8d8');
+  for (const x of [-160, 160]) { g.fillStyle = '#1a1a1e'; g.beginPath(); g.arc(x, -40, 46, 0, 7); g.fill(); g.fillStyle = '#9a9aa0'; g.beginPath(); g.arc(x, -40, 18, 0, 7); g.fill(); }
+  g.restore();
+}
+// the old market by day: stalls, umbrellas, fruit
+export function market(g, t) {
+  vgrad(g, 0, 0, W, H, '#c8b890', '#8a7a5a'); rect(g, 0, 880, W, 200, '#6a6050');
+  for (let k = 0; k < 5; k++) {
+    const x = 60 + k * 380;
+    g.fillStyle = ['#c8322c', '#2a6ab0', '#e0a830', '#2a8a5e', '#c8322c'][k]; g.beginPath(); g.moveTo(x - 30, 380); g.lineTo(x + 170, 260); g.lineTo(x + 370, 380); g.closePath(); g.fill();
+    rect(g, x + 166, 380, 8, 380, '#4a3a2a'); rect(g, x, 640, 340, 120, '#8a6a46');
+    for (let i = 0; i < 9; i++) { g.fillStyle = ['#e8a030', '#c8322c', '#7ab040', '#e8d040'][(i + k) % 4]; g.beginPath(); g.arc(x + 30 + i * 36, 630 - (i % 2) * 14, 20, 0, 7); g.fill(); }
+  }
+  rect(g, 1560, 120, 300, 70, '#c8322c'); g.fillStyle = '#fff'; g.font = `700 34px ${TH}`; g.fillText('โอ๊ตการไฟฟ้า →', 1580, 168);   // the red sign far down the lane
 }

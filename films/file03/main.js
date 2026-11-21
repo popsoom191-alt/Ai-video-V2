@@ -10,7 +10,7 @@ const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x)), seg = (t, a, b) 
 const hash = n => { n = Math.sin(n * 127.1 + 311.7) * 43758.5453; return n - Math.floor(n); };
 const fetchJ = async p => { try { const r = await fetch(p); return r.ok ? await r.json() : {}; } catch { return {}; } };
 const EPN = new URLSearchParams(location.search).get('ep') || '1';
-const DURS = await fetchJ(EPN === '1' ? 'voices/dur.json' : `voices_ep${EPN}/dur.json`);
+const DURS = await fetchJ(EPN === '1' || EPN === '12' ? 'voices/dur.json' : `voices_ep${EPN}/dur.json`);   // ep12 = the merged episode, reuses episode 1's voices
 let TEXT = {};
 const dur = id => DURS[id] || Math.max(1.6, (TEXT[id] || '').length * .085);
 

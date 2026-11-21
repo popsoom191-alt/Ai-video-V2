@@ -236,6 +236,11 @@ export const CAST = {
     top: '#d4842e', pants: '#38425a', shoes: '#5a3a2a', ...shortHair('#7a7a7a'), expr: 'worried',
     outfit(g, P, dk) { poly(g, [[-28, -318], [28, -318], [26, -232], [-26, -232]], '#c8be3a'); poly(g, [[-28, -318], [-12, -318], [-12, -232], [-26, -232]], dk('#c8be3a', .2)); g.fillStyle = '#d8d8d8'; g.fillRect(-27, -284, 54, 4); g.fillRect(-27, -262, 54, 4); g.fillStyle = '#d4842e'; g.fillRect(-4, -318, 8, 86); },
     faceExtra(g, v, hx, hy) { g.strokeStyle = 'rgba(80,40,20,.4)'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(hx + 2, hy - 15); g.lineTo(hx + 12, hy - 16); g.stroke(); } },
+  vendor: { name: 'ป้าขายผลไม้', role: 'ตลาดเก่า', quote: 'ท้ายซอยโน่น', bg: ['#7a6a4a', '#3a3020'], expr: 'smile', skin: '#c8906a',
+    top: '#4a7aa8', pants: '#5a4a3a', shoes: '#3a2a20', skirt: '#6a4a3a', skirtLen: -110, hairCol: '#2a2020',
+    outfit(g, P, dk) { poly(g, [[-20, -300], [22, -300], [24, -160], [-18, -160]], '#e8dcc0'); },
+    hairBack(g) { el(g, -12, -398, 11, 10, '#2a2020'); },
+    hairFront(g, v, hx, hy) { poly(g, [[hx - 25, hy + 2], [hx - 26, hy - 30, hx, hy - 33], [hx + 22, hy - 32, hx + 24, hy - 16], [hx + 4, hy - 22], [hx - 16, hy - 10]], '#2a2020'); } },
   thing: { name: '???', role: 'ร่างในทางเดิน', quote: 'ไม่มีใครบอกได้ว่ามันคืออะไร', bg: ['#4a4840', '#14140f'] },
 };
 

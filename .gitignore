@@ -7,3 +7,4 @@ films/*/stills/
 __pycache__/
 films/_ref/
 /*.mp4
+films/*/mix_ep*.wav

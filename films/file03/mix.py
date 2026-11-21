@@ -8,7 +8,7 @@ from core.audio.sfx import SR, bp, lp, hp, add, limit, compress
 from core.audio import sampler as S
 rng = np.random.default_rng(3)
 EP = sys.argv[1] if len(sys.argv) > 1 else '1'
-EVF = 'events.json' if EP == '1' else f'events_ep{EP}.json'; VDIR = 'voices' if EP == '1' else f'voices_ep{EP}'; OUTF = 'mix.wav' if EP == '1' else f'mix_ep{EP}.wav'
+EVF = 'events.json' if EP == '1' else f'events_ep{EP}.json'; VDIR = 'voices' if EP in ('1', '12') else f'voices_ep{EP}'; OUTF = 'mix.wav' if EP == '1' else f'mix_ep{EP}.wav'
 E = json.load(open(os.path.join(HERE, EVF))); DUR = E['dur']; EV = E['ev']; N = int(DUR * SR)
 tt = np.arange(N) / SR; mix = np.zeros((N, 2)); sec = lambda d: int(round(d * SR)); nz = lambda n: rng.standard_normal(n)
 def put(x, t, g=1., pan=0.):
@@ -109,6 +109,11 @@ FX = {
 }
 FX['sting2'] = FX['sting']
 FX['market'] = lambda t: put(np.stack([lp(nz(sec(46)), 900) * .05] * 2, 1) * env(sec(46), 1, 1)[:, None], t)
+FX['knock'] = lambda t: [put(thump(110, .18) * .9 + bp(nz(sec(.18)), 400, 2000) * env(sec(.18), .002, .1) * .4, t + k * .32, .5) for k in range(3)]
+FX['startle'] = lambda t: put(bp(nz(sec(.4)), 1500, 6000) * env(sec(.4), .01, .3), t, .12)
+FX['sent'] = lambda t: put(np.sin(2 * np.pi * 1800 * np.arange(sec(.12)) / SR) * env(sec(.12), .005, .08) * .5, t, .3)
+FX['lock'] = lambda t: (put(click(.03) * 2, t, .5), put(click(.02) * 2, t + .25, .5))
+FX['car'] = lambda t: put(np.stack([lp(nz(sec(10)), 220) * .3 + np.sin(2 * np.pi * 62 * np.arange(sec(10)) / SR) * .08] * 2, 1) * env(sec(10), .8, .8)[:, None], t)
 FX['tvon'] = lambda t: (put(click(.03) * 2, t, .5), put(np.sin(2 * np.pi * 15700 * np.arange(sec(11)) / SR) * .02, t, 1))
 for e in EV:
     f = FX.get(e['type'])
