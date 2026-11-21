@@ -56,20 +56,27 @@ const carryBox = (g, x, y) => { poly(g, [[x - 40, y - 34], [x + 40, y - 34], [x 
 
 // ---------- the 3/4 standing figure (faces screen right) ----------
 function standing(g, C, P) {
-  if (P.sit && !P._seated) {
-    for (const [sx, c] of [[-9, dk(C.pants, .12)], [9, C.pants]]) {
-      const col = C.skirt && !C.longSkirt ? (C.skin || SK) : c;
-      poly(g, [[sx - 9, -142], [sx + 62, -146], [sx + 62, -128], [sx - 9, -124]], C.skirt || c);
-      poly(g, [[sx + 52, -134], [sx + 66, -134], [sx + 64, -18], [sx + 52, -18]], col);
-      poly(g, [[sx + 50, -22], [sx + 66, -22], [sx + 74, 0], [sx + 48, 0]], C.shoes);
+  if (P.sit === 'floor' && !P._seated) {   // sitting on the floor (a mat): legs stretched forward along the ground
+    const ls = C.legScale || 1, len = 150 * ls, thighC = C.skirt || C.pants, shinC = C.skirt && (C.skirtLen ?? -130) > -100 ? C.skirt : C.pants;
+    for (const [sx, d] of [[-6, .14], [6, 0]]) { poly(g, [[sx - 10, -34], [sx + len * .5, -30], [sx + len * .5, -6], [sx - 10, -6]], dk(thighC, d)); poly(g, [[sx + len * .5, -28], [sx + len, -22], [sx + len, -6], [sx + len * .5, -6]], dk(shinC, d)); poly(g, [[sx + len - 4, -40], [sx + len + 12, -40], [sx + len + 12, -4], [sx + len - 4, -4]], C.shoes); }
+    g.save(); g.translate(0, 226 - 30); standing(g, { ...C, skirt: null }, { ...P, _seated: true, noLegs: true }); g.restore(); return;
+  }
+  if (P.sit && !P._seated) {   // seated on a stool: thighs forward at seat height, shins down, the body lowered onto the seat
+    const ls = C.legScale || 1, seat = 142 * ls, kx = 64 * ls, skin = C.skin || SK;
+    const short = C.skirt && (C.skirtLen ?? -130) <= -100, thighC = C.skirt || C.pants, shinC = C.skirt && !short ? C.skirt : C.pants;
+    if (P.seat !== false) { const sc = P.seatCol || '#8a6440'; poly(g, [[-30, -seat], [40, -seat], [40, -seat + 12], [-30, -seat + 12]], sc); poly(g, [[-26, -seat + 12], [-18, -seat + 12], [-18, 0], [-26, 0]], dk(sc, .2)); poly(g, [[28, -seat + 12], [36, -seat + 12], [36, 0], [28, 0]], dk(sc, .2)); }
+    for (const [sx, d] of [[-9, .14], [9, 0]]) {
+      poly(g, [[sx - 9, -seat - 4], [sx + kx, -seat - 6], [sx + kx, -seat + 12], [sx - 9, -seat + 12]], dk(thighC, d));
+      poly(g, [[sx + kx - 12, -seat + 4], [sx + kx + 2, -seat + 4], [sx + kx, -20], [sx + kx - 12, -20]], dk(shinC, d));
+      poly(g, [[sx + kx - 14, -24], [sx + kx + 2, -24], [sx + kx + 10, 0], [sx + kx - 16, 0]], C.shoes);
     }
-    g.save(); g.translate(0, 88); standing(g, { ...C, skirt: null }, { ...P, _seated: true, noLegs: true }); g.restore(); return;
+    g.save(); g.translate(0, 226 - seat - 4); standing(g, { ...C, skirt: null }, { ...P, _seated: true, noLegs: true }); g.restore(); return;
   }
   const skin = C.skin || SK, bob = 0;
   g.save(); g.scale(.86, 1);   // a slimmer body, as in the references (the head is drawn at full width)
   // legs: long and thin, a shadow plane down the back edge
   const cr = P.crouch || 0, drop = 104 * cr;   // a squat: the hips come down, the knees go forward
-  const ls = C.legScale || 1;   // a child has shorter legs
+  const ls = P.noLegs ? 1 : (C.legScale || 1);   // a child has shorter legs (a seated body is placed by the sit branch)
   if (ls !== 1) { g.save(); g.scale(1, ls); }
   if (!C.longSkirt && !P.noLegs) for (const [sx, c, fx] of [[-9, dk(C.pants, .12), -7], [9, C.pants, 2]]) {   // weight on the near leg; the far foot eased out
     if (cr > .02) { const hip = [sx, -218 + drop], knee = [sx + 70 * cr, -112 + drop * .2], ank = [sx + fx, -22]; path(g, [hip, knee, ank], 15, c); }

@@ -65,7 +65,7 @@ export default (api) => {
       camK(lt, [[0, [600, 760, 1.5]], [9, [700, 720, 1.35]], [14, [1300, 640, 1.2]], [26, [1200, 640, 1.15]], [34, [1100, 620, 1.1]]], () => {
         shack(g, t);
         const pm = mover(lt, [[0, 520], [12.6, 520], [15.6, 1380]]);
-        person(g, 'pan8', pm.x, 980, 460, P('pan8', t, pm.walk != null ? { walk: pm.walk } : lt < 9.4 ? { sit: true, blink: lt < 6, look: .2 } : { look: .6 }));
+        person(g, 'pan8', pm.x, 980, 460, P('pan8', t, pm.walk != null ? { walk: pm.walk } : lt < 9.4 ? { sit: 'floor', blink: lt < 6, look: .2 } : { look: .6, sit: lt < 11.8 ? 'floor' : undefined }));
         person(g, 'mae', 1600, 990, 560, P('mae', t, { flip: true, look: lt > 18 && lt < 24 ? .9 : .2 }));
       });
       fade(lt, 34);
@@ -95,7 +95,7 @@ export default (api) => {
       if (lt > 23.6 && lt < 32.6) { coinsInsert(); black(1 - seg(lt, 23.6, 24.2)); black(seg(lt, 32, 32.6)); return; }
       camK(lt, [[0, [900, 600, 1.08]], [14, [1000, 640, 1.2]], [22, [800, 620, 1.25]], [33, [960, 640, 1.15]], [44, [1100, 640, 1.12]], [54, [1060, 620, 1.1]]], () => {
         curryStall(g, t);
-        for (const [x, s, f] of [[1140, 41, false], [1480, 42, true], [1520, 43, false], [1860, 44, true]]) person(g, extra(s), x, 900, 520, { t, sit: true, flip: f, hands: { L: [46, -250], R: [60, -244] } });
+        for (const [x, s, f] of [[1140, 41, false], [1480, 42, true], [1520, 43, false], [1860, 44, true]]) person(g, extra(s), x, 900, 520, { t, sit: true, seat: false, flip: f, hands: { L: [46, -250], R: [60, -244] } });
         const cm = mover(lt, [[0, 1700], [16, 1700], [19.4, 1060], [21.8, 1060], [25, -200]]);
         if (cm.x > -150) person(g, extra(45), cm.x, 980, 540, P('x', t, cm.walk != null ? { walk: cm.walk, flip: cm.flip } : { flip: true, hands: { R: [100, -250] } }));
         person(g, 'mae', 700, 696, 430, P('mae', t, { look: .4 }));

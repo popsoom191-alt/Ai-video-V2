@@ -96,6 +96,6 @@ export function act(name, u, base = {}) {
   if (pick('blink')) out.blink = true;
   const pr = pick('prop'); if (pr) out.prop = pr;
   if (KA.arms || KB.arms) { delete out.hands; out.idle = KB.arms || KA.arms; out.idleK = KA.arms && KB.arms ? 1 : KB.arms ? k : 1 - k; }   // stances blend in through the idle mechanism
-  if (pick('sit')) { out.sit = true; delete out.crouch; }
+  if (pick('sit')) { out.sit = base.sit || true; delete out.crouch; }
   return out;
 }
