@@ -6,7 +6,7 @@ Animations made in code (Canvas2D in a headless browser → mp4). The user write
 - Engine: `films/file03/main.js`. An episode is a list of scenes `{ d, tape, osd, date, lines:[[id,who,at,th,en]], ev:[[at,type]], look, draw(lt,t) }`, picked with `?ep=NAME` → `ep${NAME}.js`.
   - Scene start times are summed.
   - `look` = `{tone, v, atmo:[[kind,opts]]}` is applied after each draw (grade, vignette, atmosphere).
-- **Current episode 1: `epv2.js` (`?ep=v2`, 18:52).** It builds on `epr.js` (round 1, no cuts), which builds on `ep1.js` / `ep2.js`. Plot: `films/file03/PLOT_EP1.md`. References: `films/file03/REFERENCES.md`.
+- **Current episode 1: `epv2.js` (`?ep=v2`, 18:52).** It builds on `epr.js` (round 1, no cuts), which builds on `ep1.js` / `ep2.js`. Plot: `films/file03/PLOT_EP1.md`. References: `films/file03/REFERENCES.md` + a picture sheet of the guide reel `films/file03/refs/guide_sheet.jpg` (27 labelled shots, a list with timestamps in `refs/guide_list.txt`). **Look at it before designing any scene.**
 - Other files:
   - Characters: `chars2.js` (style 2/3; `person(g,id,x,y,H,pose)`)
   - Actions: `actions.js` (53 actions, `act(name,u)`)
