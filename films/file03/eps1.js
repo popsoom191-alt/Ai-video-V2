@@ -60,13 +60,13 @@ export default (api) => {
             ['s1n3', 'narr', 13.2, 'แม่ตื่นก่อนคุณเสมอ ตีสี่ แกงหม้อแรกต้องเสร็จก่อนฟ้าสาง', 'Mum was always up first. Four a.m. The first pot had to be done by dawn.'],
             ['s1m1', 'mae', 20.6, 'ตื่นแล้วเหรอลูก ไปล้างหน้า แล้วมาช่วยแม่ยกหม้อ', "You're up? Wash your face, then help me carry the pot."],
             ['s1n4', 'narr', 27.0, 'คุณไม่รู้ว่าบ้านเราจน… จนกระทั่งมีคนบอก', "You didn't know you were poor… until someone told you."]],
-    acts: [['mae', 'stir', 2, 16], ['pan8', 'standUp', 9.4, 2.4], ['pan8', 'stretch', 12.2, 2.4], ['pan8', 'nodLong', 24.6], ['mae', 'stir', 25, 8]],
+    acts: [['mae', 'stir', 2, 17.4], ['pan8', 'standUp', 9.4, 2.4], ['pan8', 'stretch', 12.2, 2.4], ['pan8', 'nodLong', 24.6], ['mae', 'stir', 25.4, 8]],
     draw(lt, t) {
       camK(lt, [[0, [600, 760, 1.5]], [9, [700, 720, 1.35]], [14, [1300, 640, 1.2]], [26, [1200, 640, 1.15]], [34, [1100, 620, 1.1]]], () => {
         shack(g, t);
         const pm = mover(lt, [[0, 520], [12.6, 520], [15.6, 1380]]);
         person(g, 'pan8', pm.x, 980, 460, P('pan8', t, pm.walk != null ? { walk: pm.walk } : lt < 9.4 ? { sit: 'floor', blink: lt < 6, look: .2 } : { look: .6, sit: lt < 11.8 ? 'floor' : undefined }));
-        person(g, 'mae', 1600, 990, 560, P('mae', t, { flip: true, look: lt > 18 && lt < 24 ? .9 : .2 }));
+        person(g, 'mae', 1600, 990, 560, P('mae', t, { flip: !(lt < 19.6 || lt > 25), look: lt > 18 && lt < 24 ? .9 : .2 }));
       });
       fade(lt, 34);
     } };

@@ -123,12 +123,15 @@ function side(g, C, P) {
   const ph = P.walk ?? 0, s = Math.sin(ph), c = Math.cos(ph), bob = Math.abs(c) * 4;
   g.save(); g.translate(0, -bob);
   const legs = [[s, dk(C.pants, .28)], [-s, C.pants]];   // far leg first
+  const lsW = C.legScale || 1;   // a child's shorter legs when walking too
+  if (lsW !== 1) { g.save(); g.scale(1, lsW); }
   if (!C.longSkirt) for (const [k, col] of legs) {
     const hip = [0, -226], knee = [k * 22 + 4, -122], foot = [k * 40, -6 + Math.max(0, -k) * 0];
     const kneeB = [knee[0] + (k < 0 ? 8 : 0), knee[1]];
     path(g, [hip, kneeB, foot], 15, col);
     poly(g, [[foot[0] - 7, foot[1] - 12], [foot[0] + 18, foot[1] - 6], [foot[0] + 18, foot[1] + 6], [foot[0] - 8, foot[1] + 6]], C.shoes);
   }
+  if (lsW !== 1) { g.restore(); g.translate(0, 226 * (1 - lsW)); }
   C.skirt && poly(g, [[-16, -236], [18, -236], [26 + s * 4, C.skirtLen ?? -130], [-22 + s * 4, C.skirtLen ?? -130]], C.skirt);
   const swing = s * 34;
   path(g, [[0, -316], [-swing * .5, -258], [-swing, -200]], 12, dk(C.sleeve || C.top, .3));   // far arm

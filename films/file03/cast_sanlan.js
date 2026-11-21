@@ -55,5 +55,18 @@ Object.assign(add, {
   teacher: { name: 'ครู', skin: '#e0b494', top: '#d8c8e8', skirt: '#4a4a5a', skirtLen: -60, pants: '#e0b494', shoes: '#2a2a2a', expr: 'neutral', ...bun('#2a2020'), faceExtra: glasses('#4a3a3a') },
   aunty: { name: 'ญาติ', skin: '#d0a07a', top: '#c8a03a', skirt: '#3a5a4a', skirtLen: -40, pants: '#d0a07a', shoes: '#3a2a1e', expr: 'smile', ...bun('#1e1818') },
 });
+Object.assign(add, {
+  pan25: { ...add.pan30, name: 'ปั้น · ๒๕', top: '#e8e4dc', pants: '#3a4050', coatLen: -222, outfit(g) { P(g, [[-6, -322], [10, -322], [6, -300]], '#c8c4bc'); }, expr: 'smile' },   // a good shirt: the peak
+  pan26: { ...add.pan22, name: 'ปั้น · ๒๖', top: '#4a4e58', pants: '#2a2e36', expr: 'sad', outfit(g) { P(g, [[-14, -300], [10, -298], [8, -280], [-12, -282]], '#5a4e3e'); } },   // the fall: a stained shirt
+  pan27: { ...add.pan22, name: 'ปั้น · ๒๗', top: '#e8e8e2', pants: '#2a2e36', ...crew('#141012'), outfit(g) { P(g, [[-22, -300], [24, -300], [26, -150], [-20, -150]], '#3a4a5a'); } },   // dishwasher's apron, the hair cut short
+  pan38: { ...add.pan30, name: 'ปั้น · ๓๘', top: '#1a1e26', ...neat('#2a2626'), expr: 'neutral' },
+  nun25: { ...add.nun, name: 'นุ่น · ๒๕', headScale: 1, legScale: 1, top: '#e8e4ec', skirt: '#4a3e5a', skirtLen: -120, expr: 'smile' },
+  rude: { name: 'ลูกค้า', skin: '#e0b494', top: '#c8a03a', pants: '#3a3a40', shoes: '#2a2a2a', expr: 'frown', ...neat('#2a2020') },
+  investor: { name: 'นักลงทุน', skin: '#e0b494', top: '#2a2e36', pants: '#2a2e36', shoes: '#1a1a1e', expr: 'frown', coatLen: -200, ...neat('#3a3a3e'), faceExtra: glasses('#1a1a1a') },
+  kimd: { name: 'ลูกสาวเฮียกิม', skin: '#e0b494', top: '#3a5a5a', skirt: '#2a2a30', skirtLen: -90, pants: '#e0b494', shoes: '#2a2a2a', expr: 'neutral', ...bun('#1a1414') },
+  shark: { name: 'เจ้าหนี้', skin: '#c48a60', top: '#1a1a1e', pants: '#2a2a30', shoes: '#1a1a1e', expr: 'frown', bald: true, hairBack: (g) => E(g, -18, -362, 8, 12, '#1a1414') },
+  aide: { name: 'ลูกน้อง', skin: '#d6a07c', top: '#2a3a52', pants: '#2a2e36', shoes: '#1a1a1e', coatLen: -205, ...crew('#1a1616') },
+  tman: { name: 'คนของคุณธนา', skin: '#e0b494', top: '#3a3e46', pants: '#3a3e46', shoes: '#1a1a1e', coatLen: -200, ...neat('#1a1a1a'), expr: 'neutral' },
+});
 Object.assign(CAST, add);
 export const SANLAN = Object.keys(add);

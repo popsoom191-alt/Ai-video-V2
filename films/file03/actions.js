@@ -77,6 +77,9 @@ export const ACTIONS = {
   stir: { th: 'คนหม้อแกง', dur: 3, keys: [[0, {}], ...Array.from({ length: 10 }, (_, i) => [.05 + i * .09, { R: [76 + 14 * Math.cos(i * 1.6), -238 + 8 * Math.sin(i * 1.6)], L: [60, -228], lean: .06, nod: 4 }]), [1, {}]] },
   washDish: { th: 'ล้างจาน', dur: 3, keys: [[0, {}], ...osc(.05, .95, 12, { R: [70, -170], L: [52, -166], lean: .14, crouch: .35, nod: 6 }, { R: [84, -164], L: [62, -172], lean: .14, crouch: .35, nod: 6 }), [1, {}]] },
   raiseHand: { th: 'ยกมือ', dur: 2.4, keys: [[0, {}], [.3, { R: [34, -450] }], [.75, { R: [34, -450] }], [1, {}]] },
+  wipeFace: { th: 'เช็ดหน้า', dur: 2.4, keys: [[0, {}], [.3, { R: [24, -370], nod: 4, expr: 'sad' }], ...osc(.3, .8, 4, { R: [16, -366], nod: 4, expr: 'sad' }, { R: [30, -374], nod: 4, expr: 'sad' }), [1, { expr: 'sad' }]] },
+  bowSorry: { th: 'ก้มขอโทษ', dur: 2.2, keys: [[0, {}], [.35, { lean: .22, nod: 10, R: [20, -230], L: [6, -232] }], [.75, { lean: .22, nod: 10, R: [20, -230], L: [6, -232] }], [1, {}]] },
+  throwFile: { th: 'โยนแฟ้มคืน', dur: 1.8, keys: [[0, { R: [40, -260], prop: ['R', 'book'] }], [.35, { R: [96, -280], lean: .05, prop: ['R', 'book'] }], [.45, { R: [104, -270], lean: .05 }], [1, {}]] },
   scratchHead: { th: 'เกาหัว', dur: 2, keys: [[0, {}], [.3, { R: [10, -410], expr: 'frown' }], ...osc(.3, .75, 6, { R: [6, -412], expr: 'frown' }, { R: [14, -408], expr: 'frown' }), [1, {}]] },
 };
 export const ACTION_NAMES = Object.keys(ACTIONS);

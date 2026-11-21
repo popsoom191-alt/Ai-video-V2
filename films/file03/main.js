@@ -23,7 +23,8 @@ const talk = (who, t) => speaking(who, t) ? .35 + .65 * Math.abs(Math.sin(t * 17
 const IDLE = { beer: 'chin', nid: 'cross', oat: 'hip', oatOld: 'hip', chai: 'hips', ton: 'pocket', wichai: 'cross', mind: 'strap' };
 const idleK = (who, t) => { if (!IDLE[who]) return 0; const ph = (t * .07 + who.length * .37) % 1; let k = ease(clamp((ph - .1) / .07)) * (1 - ease(clamp((ph - .6) / .07)));
   for (const d of [0, .25, .5, .75, 1]) if (speaking(who, t + d) || speaking(who, t - d)) { k = Math.min(k, d); break; } return k; };
-const P = (who, t, extra = {}) => { const sp = speaking(who, t); return { idle: IDLE[who], idleK: idleK(who, t), talk: talk(who, t), blink: (t * .31 + who.length * .17) % 1 < .035, t, gesture: sp, nod: sp ? Math.sin(t * 4.2) * 1.4 : (Math.sin(t * .8 + who.length * 2) > .94 ? Math.sin(t * 9) * 2.4 : 0), ...extra }; };
+const NOGEST = EPN.startsWith('s');   // แสนล้าน: no hand gestures while talking (the user's request)
+const P = (who, t, extra = {}) => { const sp = speaking(who, t); return { idle: IDLE[who], idleK: idleK(who, t), talk: talk(who, t), blink: (t * .31 + who.length * .17) % 1 < .035, t, gesture: sp && !NOGEST, nod: sp ? Math.sin(t * 4.2) * 1.4 : (Math.sin(t * .8 + who.length * 2) > .94 ? Math.sin(t * 9) * 2.4 : 0), ...extra }; };
 // keyframes [[t, v | [v...]], ...] eased per segment; a camera that follows them; a walker between positions
 const K = (lt, keys) => { if (lt <= keys[0][0]) return keys[0][1]; for (let i = 0; i < keys.length - 1; i++) { const [a, A] = keys[i], [b, B] = keys[i + 1]; if (lt <= b) { const u = ease(seg(lt, a, b)); return Array.isArray(A) ? A.map((v, j) => lerp(v, B[j], u)) : lerp(A, B, u); } } return keys[keys.length - 1][1]; };
 const camK = (lt, keys, fn, rot = 0) => { const [x, y, z] = K(lt, keys); cam(x, y, z, fn, rot); };
