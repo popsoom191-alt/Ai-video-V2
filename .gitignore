@@ -6,3 +6,4 @@ films/*/fonts/*.ttf
 films/*/stills/
 __pycache__/
 films/_ref/
+/*.mp4

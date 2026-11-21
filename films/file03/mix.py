@@ -23,7 +23,7 @@ for e in EV:
 inTape = lambda t: tape[min(N - 1, sec(t))] > 0
 
 # ---- voices
-PITCH = {'beer': -1.5, 'ton': -2.5, 'chai': -5, 'oat': -3, 'wichai': -4, 'mind': 1.5, 'nid': 1, 'daeng': -.5, 'fon': 4}
+PITCH = {'fon': 3}   # ElevenLabs gives each character its own voice; only Fon is lifted to sound like a child
 for e in EV:
     if e['type'] != 'line': continue
     y, sr = sf.read(os.path.join(HERE, 'voices', e['id'] + '.wav')); y = librosa.resample(y, orig_sr=sr, target_sr=SR)
