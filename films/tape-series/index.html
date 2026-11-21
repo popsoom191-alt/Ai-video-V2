@@ -1,0 +1,52 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Tape No. 9 — character sheets</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>html,body{margin:0;background:#f3eee3;overflow:hidden}canvas{display:block}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+import { draw, cast } from './characters.js';
+const q = new URLSearchParams(location.search), which = q.get('sheet') || 'lineup';
+for (const w of [400, 600, 700]) await document.fonts.load(`${w} 40px 'IBM Plex Sans Thai'`);
+const cv = document.getElementById('c'), x = cv.getContext('2d');
+const TH = "'IBM Plex Sans Thai'";
+function paper() {
+  x.fillStyle = '#f3eee3'; x.fillRect(0, 0, 1920, 1080);
+  for (let i = 0; i < 4000; i++) { x.fillStyle = `rgba(120,100,70,${Math.random() * .05})`; x.fillRect(Math.random() * 1920, Math.random() * 1080, 2, 2); }
+}
+function label(t, sx, sy, size = 40, w = 700, col = '#1d1a1f', align = 'center') { x.font = `${w} ${size}px ${TH}`; x.fillStyle = col; x.textAlign = align; x.fillText(t, sx, sy); }
+function ground(cx, gy, w) { x.fillStyle = 'rgba(30,26,31,.12)'; x.beginPath(); x.ellipse(cx, gy, w, 14, 0, 0, 7); x.fill(); }
+function render() {
+  paper();
+  if (which === 'lineup') {
+    label('ม้วนที่ ๙ — ตัวละคร', 960, 90, 64);
+    // a height chart behind them
+    x.strokeStyle = 'rgba(30,26,31,.15)'; x.lineWidth = 2; for (let k = 0; k < 9; k++) { const y = 930 - k * 90; x.beginPath(); x.moveTo(80, y); x.lineTo(1840, y); x.stroke(); }
+    const order = [['tonkhao', {}], ['phum', {}], ['jit', {}], ['somchai', {}], ['on', {}], ['on', { ghost: true }]];
+    order.forEach(([n, o], i) => {
+      const cx = 200 + i * 304, gy = 930; ground(cx, gy, 90);
+      x.save(); x.translate(cx, gy); draw(x, n, { s: 205, view: 'q', expr: o.ghost ? null : 'neutral', ...o }); x.restore();
+      label(o.ghost ? 'ครูอร (ผี)' : cast[n].name, cx, 1000, 36);
+    });
+  } else {
+    const C = cast[which.replace('-ghost', '')], ghost = which.endsWith('-ghost');
+    label(C.name + (ghost ? ' — ร่างผี' : ''), 80, 100, 64, 700, '#1d1a1f', 'left');
+    label(C.role, 80, 156, 32, 400, '#4a4450', 'left');
+    const views = [['front', 'ด้านหน้า'], ['q', 'สามส่วนสี่']];
+    views.forEach(([v, t], i) => { const cx = 330 + i * 430, gy = 960; ground(cx, gy, 110); x.save(); x.translate(cx, gy); draw(x, C === cast.on ? 'on' : which, { s: ghost ? 200 : 250, view: v, expr: 'neutral', ghost }); x.restore(); label(t, cx, 1030, 30, 600); });
+    // expressions: heads only (clip the top of the drawing)
+    const ex = ghost ? [] : [['happy', 'ดีใจ'], ['scared', 'กลัว'], ['curious', 'สงสัย'], ['sad', 'เศร้า']];
+    ex.forEach(([e, t], i) => {
+      const bx = 1180 + (i % 2) * 330, by = 230 + Math.floor(i / 2) * 330;
+      x.fillStyle = '#fbf8f1'; x.fillRect(bx, by, 300, 290); x.strokeStyle = '#1d1a1f'; x.lineWidth = 3; x.strokeRect(bx, by, 300, 290);
+      x.save(); x.beginPath(); x.rect(bx, by, 300, 290); x.clip(); x.translate(bx + 150, by + 150 + C.h * 260 * .82); draw(x, C === cast.on ? 'on' : which, { s: 260, view: 'front', expr: e }); x.restore();
+      x.fillStyle = '#fbf8f1'; x.fillRect(bx + 2, by + 244, 296, 44); x.fillStyle = '#1d1a1f'; x.fillRect(bx, by + 242, 300, 3);
+      label(t, bx + 150, by + 278, 28, 600);
+    });
+    if (ghost) { label('สูงเกินคนจริง ๑๕%', 1200, 360, 34, 600, '#1d1a1f', 'left'); label('คอยาว เอียงคอ ผมปิดหน้า', 1200, 420, 34, 600, '#1d1a1f', 'left'); label('มือยังถือสมุดเช็กชื่อ', 1200, 480, 34, 600, '#1d1a1f', 'left'); label('เห็นแค่ในเทป ไม่เคยเห็นตรง ๆ', 1200, 540, 34, 600, '#1d1a1f', 'left'); }
+    // palette
+    C.pal.forEach((c, i) => { x.fillStyle = c; x.fillRect(1180 + i * 105, 920, 90, 70); x.strokeStyle = '#1d1a1f'; x.lineWidth = 3; x.strokeRect(1180 + i * 105, 920, 90, 70); });
+    label('สี', 1180, 900, 28, 600, '#1d1a1f', 'left');
+  }
+}
+window.render = () => render(); window.DUR = 1; render(); window.READY = true;
+</script></body></html>
