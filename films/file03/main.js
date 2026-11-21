@@ -1,5 +1,5 @@
 // FILE 03 · ตอนที่ ๑ "ไฟล์ 03": the whole episode. window.render(t) draws frame t; window.EV feeds the sound mix.
-import { person } from './chars.js';
+import { person } from './chars2.js';
 import { shop, exterior, lobby, corridor, lift, paper, vcr } from './bg.js';
 import { sheet } from './sheet.js';
 for (const w of [400, 600, 700]) await document.fonts.load(`${w} 40px 'IBM Plex Sans Thai'`);
@@ -80,14 +80,15 @@ function render(t) {
     const lt = t - 6, z = t > 15.2 && t < 22.6 ? 1.5 : 1.02 + lt * .002, cx = t > 15.2 && t < 22.6 ? 700 : 960, cy = t > 15.2 && t < 22.6 ? 600 : 540;
     cam(cx, cy, z, () => {
       shop(g, t, false, { clock: 14.2 });
+      g.save(); g.globalCompositeOperation = 'screen'; for (const [x0, w] of [[1300, 160], [1500, 110], [1640, 70]]) { const gr = g.createLinearGradient(x0, 120, x0 - 500, 1000); gr.addColorStop(0, 'rgba(255,245,215,.16)'); gr.addColorStop(1, 'rgba(255,245,215,0)'); g.fillStyle = gr; g.beginPath(); g.moveTo(x0, 120); g.lineTo(x0 + w, 120); g.lineTo(x0 + w - 560, 1080); g.lineTo(x0 - 560, 1080); g.closePath(); g.fill(); } g.restore();
       g.fillStyle = '#7a5a3a'; g.fillRect(860, 640, 180, 70); g.fillStyle = '#6a4a2e'; g.fillRect(860, 640, 180, 14);   // the box on the desk
       for (let k = 0; k < 5; k++) { g.fillStyle = k === 2 ? '#2a2a30' : '#1a1a1e'; g.fillRect(872 + k * 32, t > 15 && k === 2 ? 600 : 620, 26, 40); }
-      person(g, 'beer', 620, 980, 560, P('beer', t, { look: .6, hands: t > 15 && t < 20 ? { R: [70, -250] } : undefined }));
-      const w = walk(t, 6.4, 8.4, 2100, 1300); person(g, 'nid', w.x, 990, 560, P('nid', t, { walk: w.walk, look: -.6 }));
+      person(g, 'beer', 620, 980, 560, P('beer', t, { look: .6, hands: t > 15 && t < 20 ? { R: [40, -262] } : undefined }));
+      const w = walk(t, 6.4, 8.4, 2100, 1300); person(g, 'nid', w.x, 990, 560, P('nid', t, { walk: w.walk, look: .6, flip: true }));
     });
     black(1 - seg(t, 6, 6.6)); black(seg(t, 33.2, 34));
   } else if (t < 42) {   // C · night: the tape goes in
-    if (t < 37) { shop(g, t, true, { clock: 23.97 }); person(g, 'beer', 620, 980, 560, P('beer', t, { look: -.5 })); }
+    if (t < 37) { shop(g, t, true, { clock: 23.97 }); person(g, 'beer', 620, 980, 560, P('beer', t, { look: .5, flip: true })); }
     else vcr(g, t, ease(seg(t, 37.2, 39.6)));
     subs(t); black(1 - seg(t, 34, 34.6)); black(seg(t, 41.3, 42)); return;
   } else if (t < 118) {   // D · the tape, 1997
@@ -110,7 +111,7 @@ function tape(t) {
   if (t < 54) {   // D1 · outside the building
     cam(960, 540, 1 + (t - 42) * .006, () => {
       exterior(g, t);
-      const w = walk(t, 42, 52, 200, 820); person(g, 'mind', w.x, 1000, 380, P('mind', t, { walk: w.walk, beam: false, hands: { R: [80, -190] } }));
+      const w = walk(t, 42, 52, 200, 820); person(g, 'mind', w.x, 1000, 380, P('mind', t, { walk: w.walk, beam: false }));
       person(g, 'ton', w.x + 170, 1004, 380, P('ton', t, { walk: w.walk }));
     });
   } else if (t < 66) {   // D2 · the lobby: the guard
@@ -118,14 +119,14 @@ function tape(t) {
     cam(cx, t > 61.4 ? 560 : 540, z, () => {
       lobby(g, t, { floor: '1' });
       person(g, 'chai', 380, 900, 520, P('chai', t, { look: .7 }));
-      person(g, 'mind', 1250, 1000, 520, P('mind', t, { look: -.7, beam: false, hands: { R: [80, -190] } }));
-      person(g, 'ton', 1500, 1004, 520, P('ton', t, { look: -.7 }));
+      person(g, 'mind', 1250, 1000, 520, P('mind', t, { look: .7, beam: false, flip: true }));
+      person(g, 'ton', 1500, 1004, 520, P('ton', t, { look: .7, flip: true }));
     });
   } else if (t < 78) {   // D3 · the 4th floor: the cleaner, at 2:31 AM
     cam(960, 540, 1 + (t - 66) * .008, () => {
       corridor(g, t, .8, { wet: true });
       const mop = Math.sin(t * 4) * 18;
-      person(g, 'daeng', 1080 + mop * .3, 860, 360, P('daeng', t, { expr: 'smile', look: -.6, hands: { L: [-80 + mop, -210] } }));
+      person(g, 'daeng', 1080 + mop * .3, 860, 360, P('daeng', t, { expr: 'smile', look: .6, flip: true, hands: { L: [-4 + mop * .5, -250] } }));
       person(g, 'mind', 520, 1010, 560, P('mind', t, { look: .7, expr: t > 75 ? 'worried' : 'neutral' }));
       person(g, 'ton', 260, 1030, 600, P('ton', t, { look: .7 }));
       if (t > 75) { g.save(); g.translate(760, 1000); g.rotate(-.2); g.fillStyle = '#efe8d4'; g.fillRect(-50, -34, 100, 68); g.restore(); }   // the paper on the wet floor
@@ -143,7 +144,7 @@ function tape(t) {
     // only what the torch lights is visible
     const bx = 960 + Math.sin(t * 1.7) * 90, by = 560 + Math.cos(t * 1.3) * 40;
     const m = g.createRadialGradient(bx, by, 60, bx, by, 520); m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(1, 'rgba(0,0,0,.96)'); g.fillStyle = m; g.fillRect(0, 0, W, H);
-    person(g, 'mind', 330, 1150, 640, P('mind', t, { look: .5, expr: 'scared', beam: false, hands: { R: [90, -280] } }));
+    person(g, 'mind', 330, 1150, 640, P('mind', t, { look: .5, expr: 'scared', beam: false, hands: { R: [44, -290] } }));
   }
 }
 
@@ -152,7 +153,7 @@ function beerNight(t) {
   if (t < 124.5) {   // the frozen frame on the TV
     shop(g, t, true, { screen: '#3a4440', vcrOn: true });
     g.save(); g.beginPath(); g.roundRect(190, 455, 330, 230, 26); g.clip(); g.translate(190, 455); g.scale(330 / W, 230 / H); lift(g, 90, 1, 1); person(g, 'fon', 960, 900, 430, { t: 0, expr: 'worried' }); g.restore();
-    person(g, 'beer', 760, 990, 580, P('beer', t, { look: -.8, expr: 'neutral' }));
+    person(g, 'beer', 760, 990, 580, P('beer', t, { look: .8, expr: 'neutral', flip: true }));
   } else if (t < 131) {   // zoom into the lift door: a green hoodie in the reflection
     const z = ease(seg(t, 124.5, 127.5));
     cam(lerp(960, 1180, z), lerp(540, 520, z), lerp(1, 2.4, z), () => {
@@ -168,7 +169,7 @@ function beerNight(t) {
       g.save(); g.beginPath(); g.roundRect(190, 455, 330, 230, 26); g.clip(); g.globalAlpha = .7; person(g, 'beer', 330, 760, 260, { t }); person(g, 'thing', 430, 760, 330, { t }); g.restore();
     }
     const hands = t > 140.6 && t < 141.6 ? { R: [-120, -220] } : undefined;
-    person(g, 'beer', 760, 990, 580, P('beer', t, { look: -.8, expr: t > 132 && t < 142 ? 'worried' : 'neutral', hands }));
+    person(g, 'beer', 760, 990, 580, P('beer', t, { look: .8, expr: t > 132 && t < 142 ? 'worried' : 'neutral', hands: t > 140.6 && t < 141.6 ? { R: [60, -250] } : undefined, flip: true }));
     if (t > 143.6) { g.fillStyle = '#1a1a1e'; g.fillRect(980, 650, 90, 52); g.fillStyle = '#f2ecd8'; g.fillRect(990, 660, 70, 18); g.fillStyle = '#c8322c'; g.font = '700 16px monospace'; g.fillText('01', 1012, 675); }   // tape 01 on the desk
     if (flick < .5) { g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, 0, W, H); }
   }
