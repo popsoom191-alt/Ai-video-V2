@@ -340,9 +340,9 @@ export function person(g, id, x, y, H, pose = {}) {
   if (pose.walk == null && pose.t != null && id !== 'thing') g.translate(Math.sin(pose.t * .55 + id.length) * 1.6, 0);
   if (id === 'thing') thing(g, pose);
   else if (pose.view === 'front' || pose.view === 'back') frontBack(g, CAST[id], pose, pose.view === 'back');
-  if (pose.view === 'front' && pose.arms === 'chin' && !pose.hands?.R) { const C = CAST[id]; path(g, [[20, -304], [6, -334]], 13, C.sleeve || C.top); hand(g, 6, -332, C.skin || SK); }   // the hand over the chin
   else if (pose.walk != null || pose.view === 'side') side(g, CAST[id], pose);
   else standing(g, CAST[id], pose);
+  if (pose.view === 'front' && pose.arms === 'chin' && !pose.hands?.R) { const C = CAST[id]; path(g, [[20, -304], [6, -334]], 13, C.sleeve || C.top); hand(g, 6, -332, C.skin || SK); }   // the hand over the chin
   g.restore();
 }
 
