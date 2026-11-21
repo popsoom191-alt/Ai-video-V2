@@ -175,6 +175,9 @@ def radio_news(d):   # a radio: a band-limited voice-like murmur with a little s
     x = x / (np.abs(x).max() + 1e-9) * .7 + hp(nz(n), 4000) * .05
     return x * env(n, .2, .4)
 FX.update({
+  'drips': lambda t: put(realbed('155457.mp3', 0, 34, 1, 2), t, .03),
+  'classroom': lambda t: put(realbed('506446.mp3', 0, 42, 1, 2), t, .025),
+  'laughKids': lambda t: put(realbed('469489.mp3', 83, 5, .2, 1.2), t, .07),
   'radio': lambda t: put(radio_news(22), t, .05, -.4),
   'rattle': lambda t: [pfx(rs('617981.mp3', 1.46, 1.9), t + k * .18, .16) for k in range(3)],
   'drip': lambda t: put(np.sin(2 * np.pi * np.linspace(1400, 700, sec(.12)) * np.arange(sec(.12)) / SR) * env(sec(.12), .002, .08) * .6, t, .25),
@@ -197,14 +200,14 @@ FX.update({
   'ding': lambda t: pfx(rs('634327.mp3', 1.0, 4.0, .005), t, .2, .3),
 })
 # a soft music bed under everything (the references always run one); it dips under speech (v3 and later)
-if EP in ('v3',):
-    _bd = realbed('799355.mp3', 0, 200, 4, 4); _hp = len(_bd) - sec(4); bed = np.zeros((N, 2))
+if EP in ('v3', 's1'):
+    _bd = realbed('414557.mp3', 0, 112, 3, 3) if EP == 's1' else realbed('799355.mp3', 0, 200, 4, 4); _hp = len(_bd) - sec(4); bed = np.zeros((N, 2))
     for i in range(0, N, _hp): j = min(N, i + len(_bd)); bed[i:j] += _bd[:j - i]
     duck = np.ones(N)
     for e in EV:
         if e['type'] == 'line': i0 = sec(max(0, e['t'] - .3)); i1 = min(N, sec(e['t'] + 4.5)); duck[i0:i1] = np.minimum(duck[i0:i1], .55)
     duck = uniform_filter1d(duck, sec(.8))
-    mix += bed * (duck * (.03 - .012 * tape))[:, None]
+    mix += bed * (duck * ((.05 if EP == 's1' else .03) - .012 * tape))[:, None]
 # room tone outside the tape: the street faintly through the walls, so the shop is never dead silent
 _rt = realbed('804844.mp3', 0, 58, 2, 2, cut=900); _hop = len(_rt) - sec(2); room = np.zeros((N, 2))
 for i in range(0, N, _hop): j = min(N, i + len(_rt)); room[i:j] += _rt[:j - i]
@@ -212,7 +215,7 @@ mix += room * (1 - tape)[:, None] * .006
 for e in EV:
     f = FX.get(e['type'])
     if f: f(e['t'])
-if EP in ('v3',):   # a slow bus compressor: brings the quiet and the loud closer (the references sit at LRA 4-7)
+if EP in ('v3', 's1'):   # a slow bus compressor: brings the quiet and the loud closer (the references sit at LRA 4-7)
     mono = mix.mean(1); env = np.sqrt(uniform_filter1d(mono ** 2, sec(.4)) + 1e-12)
     thr = np.percentile(env[env > 1e-4], 60); gdb = np.where(env > thr, (1 / 3 - 1) * 20 * np.log10(env / thr), 0)
     lo = np.where(env < thr * .25, np.minimum(6, -20 * np.log10(env / (thr * .25) + 1e-9) * .5), 0)   # lift the quietest passages a little

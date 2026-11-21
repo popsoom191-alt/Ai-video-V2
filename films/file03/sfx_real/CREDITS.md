@@ -18,3 +18,7 @@
 | 634327.mp3 | Elevator_DingDong.wav | uniuniversal | https://freesound.org/people/uniuniversal/sounds/634327/ | ding |
 | 804844.mp3 | Street Ambience, Chinatown, Bangkok, Thailand (Feb 22, 2019) | marc.om | https://freesound.org/people/marc.om/sounds/804844/ | room tone: the street heard faintly through the shop walls |
 | 799355.mp3 | Ambient Drone | CVLTIV8R | https://freesound.org/people/CVLTIV8R/sounds/799355/ | the soft music bed under the whole episode (ep=v3) |
+| 414557.mp3 | Jazzy Ambient Piano (Mansion) | Hakren | https://freesound.org/people/Hakren/sounds/414557/ | แสนล้าน: warm piano bed (childhood) |
+| 469489.mp3 | cambodian children school | rucisko | https://freesound.org/people/rucisko/sounds/469489/ | แสนล้าน: the class laughing |
+| 506446.mp3 | Class room ambient - 1 | Dr. Macak | https://freesound.org/people/Dr.%20Macak/sounds/506446/ | แสนล้าน: classroom room tone |
+| 155457.mp3 | Water Drips | Zwecker | https://freesound.org/people/Zwecker/sounds/155457/ | แสนล้าน: the leaking roof |

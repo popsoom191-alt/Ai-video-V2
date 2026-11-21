@@ -54,7 +54,7 @@ export default (api) => {
   const CH1 = { d: 6, look: false, draw(lt) { chapterCard(lt, 6, '๑', 'เหรียญบาทของยาย', '๒๕๔๗ · ๘ ขวบ'); } };
 
   // ---------- 2 · the shack at dawn: three leaks, mum at the stove ----------
-  const SHACK = { d: 34, look: childhood, hud: hudOf('฿ ๐', 'ล้ม ๐'), ev: [[11, 'step'], [11.5, 'step']],
+  const SHACK = { d: 34, look: childhood, hud: hudOf('฿ ๐', 'ล้ม ๐'), ev: [[0, 'drips'], [11, 'step'], [11.5, 'step'], ...[12.8, 13.4, 14, 14.6, 15.2].map(a => [a, 'step'])],
     lines: [['s1n1', 'narr', 1.4, 'คุณเกิดในบ้านที่หลังคารั่วสามจุด', 'You were born in a house whose roof leaked in three places.'],
             ['s1n2', 'narr', 7.0, 'ทุกเช้า คุณตื่นมาพร้อมเสียงน้ำหยดลงชาม', 'Every morning you woke to water dripping into bowls.'],
             ['s1n3', 'narr', 13.2, 'แม่ตื่นก่อนคุณเสมอ ตีสี่ แกงหม้อแรกต้องเสร็จก่อนฟ้าสาง', 'Mum was always up first. Four a.m. The first pot had to be done by dawn.'],
@@ -108,7 +108,7 @@ export default (api) => {
     } };
 
   // ---------- 4 · grandma under the lamp: "every baht must know where it goes" ----------
-  const LAMP = { d: 52, look: { tone: 'warm', v: .62 }, hud: hudOf('฿ ๐', 'ล้ม ๐'), ev: [[30, 'paper']],
+  const LAMP = { d: 52, look: { tone: 'warm', v: .62 }, hud: hudOf('฿ ๐', 'ล้ม ๐'), ev: [[0, 'crickets'], [30, 'paper']],
     lines: [['s1y1', 'yai', 3.6, 'เงินบาทเดียว ก็ต้องรู้ว่าไปไหน', 'Even one baht must know where it goes.', true],
             ['s1n12', 'narr', 22.6, 'ยายเก็บเหรียญทีละบาท ใส่โหลใบนี้มาสามสิบปี', 'Grandma had saved one baht at a time in this jar for thirty years.'],
             ['s1n13', 'narr', 29.4, 'คืนนั้น ยายให้คุณนับเอง', 'That night she let you count.'],
@@ -126,7 +126,7 @@ export default (api) => {
     } };
 
   // ---------- 5 · the classroom: "a hundred-billionaire" and the laughter ----------
-  const CLASS = { d: 42, look: { tone: 'warm', v: .45, atmo: [['beams', { a: .14 }], ['dust', { a: .3 }]] }, hud: hudOf('฿ ๐', 'ล้ม ๐'),
+  const CLASS = { d: 42, ev: [[0, 'classroom'], [18.8, 'laughKids'], [13.8, 'step']], look: { tone: 'warm', v: .45, atmo: [['beams', { a: .14 }], ['dust', { a: .3 }]] }, hud: hudOf('฿ ๐', 'ล้ม ๐'),
     lines: [['s1t1', 'teacher', 2.0, 'โตขึ้นอยากเป็นอะไรกันบ้าง', 'What do you all want to be when you grow up?'],
             ['s1k1', 'kidB', 6.4, 'หมอค่ะ', 'A doctor.'], ['s1k2', 'kidA', 8.8, 'ตำรวจครับ', 'A policeman.'],
             ['s1n15', 'narr', 12.0, 'แล้วก็ถึงตาคุณ', 'Then it was your turn.'],
@@ -174,7 +174,7 @@ export default (api) => {
     } };
 
   // ---------- 7 · that night: seventeen baht, counted right; "forty-six to go" ----------
-  const END = { d: 26, look: { tone: 'warm', v: .62 }, hud: hudOf('฿ ๑๗', 'ล้ม ๑', 3),
+  const END = { d: 26, ev: [[0, 'crickets']], look: { tone: 'warm', v: .62 }, hud: hudOf('฿ ๑๗', 'ล้ม ๑', 3),
     lines: [['s1n22', 'narr', 1.6, 'คืนนั้นคุณนับเหรียญสิบเจ็ดบาท… ไม่ผิดเลยสักรอบ', 'That night you counted seventeen baht… without a single mistake.'],
             ['s1n23', 'narr', 9.6, 'นั่นคือครั้งแรกที่คุณล้ม', 'That was the first time you fell.'],
             ['s1n24', 'narr', 15.4, 'ยังเหลืออีกสี่สิบหกครั้ง', 'Forty-six to go.', true]],
