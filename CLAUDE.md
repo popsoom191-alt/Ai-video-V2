@@ -26,6 +26,43 @@ Animations made in code (Canvas2D in a headless browser → mp4). The user write
   - Don't run two renders at once (they slow each other). Long jobs go in the background.
 - Skills in `.claude/skills`: superpowers (brainstorming, writing-plans, …), earshot, real-sound. The user likes `/grill-me` rounds.
 
+## Project 2: "แสนล้าน" (started 2026-11-21; plot settled, production not started)
+- **Story:**
+  - A poor, not-clever boy, ปั้น (born 2539), dreams of 100 billion baht. He is wrong often, scammed and insulted countless times (once spat on), but never gives up.
+  - Every fall teaches him: psychology, care, long-range planning, knowing what not to do. He beats clever people because clever people overthink.
+  - The plot, all of it decided in `/grill-me` rounds: `films/sanlan/PLOT.md` (read it first).
+- **Format:**
+  - One video of about 36–37 min, five chapters plus an ending.
+  - **Narrated like the reference clips**: a second-person narrator ("คุณ…"), characters speak only 15–20 key lines. Subtitles first; voice only after the user says so.
+- **Arc:**
+  - 8: grandma's coin, mum's curry stall by the canal.
+  - 15: fails exams; Nun; พี่โอ's pyramid scheme (backed by คุณธนา).
+  - 22: scammed every way; a customer spits on him; he starts the rule notebook.
+  - 24–26: เฮียกิม (pawnshop) teaches risk. Pan's business with Nun (his lover) booms (magazine, car, condo). Then:
+    - เฮียกิม dies, and Nun betrays him at a shareholders' meeting next to คุณธนา's man.
+    - He has ฿2.4M left and burns it on drink and online gambling. He loses car, condo and the engagement ring, then sleeps under a footbridge in the rain (฿0, fall 31).
+    - The grief segment runs 4–5 min: the narrator says little ("ไม่มีใครไม่เคยเศร้า… รวมถึงคุณ"), and quiet cards show the five stages of grief.
+    - He gets up after mum's voicemail. Proposed but not yet confirmed: เฮียกิม's daughter hands him a box with คุณธนา's secret ledger, and he writes the new rule "ล้มได้ แต่ห้ามนอนนาน".
+  - 27–30: he trusts no one and rebuilds quietly. He buys คุณธนา's secret debts through nominees, leaks fake plans so the clever overthink, and swallows คุณธนา's empire.
+    - He leaves Nun's small company alone: "ถ้ามันกลับมาเหยียบหน้าผมได้ ก็แสดงว่าผมยังเก่งไม่พอ".
+    - Nun apologises ("ฉันรู้ตั้งแต่ ม.๓ ว่าสักวันนายจะกลับมา… ฉันแค่อยากถึงก่อน"; she kept his first notebook). He doesn't take her back, but doesn't touch her shop.
+  - 38: 100 billion. He follows grandma's limit (don't take food from the hungry; repay the scheme's victims). Back at mum's stall, mum looks at him oddly. The ending is philosophy: "ค่าเรียน ๔๗ ครั้ง … คุณยังเป็นเด็กคนนั้นอยู่ไหม".
+- **Taken from the reference clips** (`films/file03/REFERENCES.md`, `refs/guide_sheet.jpg`):
+  - second-person narration over pictures
+  - a top-left **HUD "ปี | อายุ | ฿ เงิน | ล้ม n"**, with money and falls changing live
+  - **rule cards** ("สมุดกฎของปั้น": one new rule per fall)
+  - **chapter cards** ("บทที่ x · title · age")
+  - **real knowledge cards** (how scams, pyramid schemes and gambling hooks work; trust-based fraud; what one baht bought in 2547)
+  - a **life graph** card at the end
+  - colour shifting with life stages: warm sepia childhood / cold grey falls / bright success
+  - a **music bed by stage**: warm piano / dark drone / tense pulse / slow piano
+  - the reference model: round head, long thin neck, slim body, straight arms, close-ups with blurred backgrounds, big hand inserts
+- **Built so far:**
+  - `films/file03/cast_sanlan.js`: the cast (ปั้น at 8/15/22/30, แม่, ยาย, พี่โอ, เฮียกิม, นุ่น, คุณธนา). `headScale` and `legScale` give child proportions. Still to design: เฮียกิม's daughter, the customer who spits, the investor who throws the file.
+  - New actions in `actions.js` (countMoney, carrySack, readBook, headInHands, scrolledPhone, dustOff, fistPump, handshake) and new props (book, coin, note, sack).
+  - Sheets: `films/file03/epsanlan.js` (`?ep=sanlan`).
+- **Next:** chapter 1 "เหรียญบาทของยาย" (~5 min) as a sample. Beats are in PLOT.md: canal house, curry stall, grandma under the lamp, classroom laughter, first sale cheated → fall 1. Show stills first.
+
 ## The user's rules (keep all of them)
 - **Within one place, no cuts:** walk people to where they talk and let the camera follow. Show the journey between places. A time jump fades over a clock. Cuts are allowed only into a screen, a phone, an insert, or a memory.
 - **Add many small details;** no confusing jumps. **Nobody may vanish or teleport between frames.** Doors open only for a reason (unlocked, broken, already open).
